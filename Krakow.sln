@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Krakow.Repl", "src\Krakow.Repl\Krakow.Repl.fsproj", "{204D86DB-146D-4EE2-A7FF-412AD48A8016}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Krakow.Core", "src\Krakow.Core\Krakow.Core.fsproj", "{E34CEF00-A6A9-4D7D-BE09-F06555FEF922}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Krakow.Core.Tests", "test\Krakow.Core.Tests\Krakow.Core.Tests.fsproj", "{91D8D2E0-7F92-461E-8284-182DD5EEB113}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{204D86DB-146D-4EE2-A7FF-412AD48A8016}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{204D86DB-146D-4EE2-A7FF-412AD48A8016}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{204D86DB-146D-4EE2-A7FF-412AD48A8016}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{204D86DB-146D-4EE2-A7FF-412AD48A8016}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E34CEF00-A6A9-4D7D-BE09-F06555FEF922}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E34CEF00-A6A9-4D7D-BE09-F06555FEF922}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E34CEF00-A6A9-4D7D-BE09-F06555FEF922}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E34CEF00-A6A9-4D7D-BE09-F06555FEF922}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91D8D2E0-7F92-461E-8284-182DD5EEB113}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91D8D2E0-7F92-461E-8284-182DD5EEB113}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91D8D2E0-7F92-461E-8284-182DD5EEB113}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91D8D2E0-7F92-461E-8284-182DD5EEB113}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
