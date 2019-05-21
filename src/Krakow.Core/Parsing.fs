@@ -17,7 +17,7 @@ let private parseExpressions (str: string) =
     |> Seq.map parseExpression
     |> Seq.toList
 
-let parseEquation str =
+let parse str =
     match parseExpressions str with
     | [] -> Result.Error "Error parsing equation"
     | xs -> Result.Ok (Equation xs) 

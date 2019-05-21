@@ -22,6 +22,6 @@ let rec private evaluateEquation stack equation =
         |> Result.bind (fun newStack -> evaluateEquation newStack (Equation xs))
 
 let evaluate str =
-    parseEquation str
+    parse str
     |> Result.bind (evaluateEquation [])
     
