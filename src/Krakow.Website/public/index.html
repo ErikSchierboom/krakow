@@ -5,13 +5,29 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="shortcut icon" href="fable.ico" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/purecss@1.0.0/build/base-min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/purecss@1.0.0/build/pure-min.css"
+      integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w"
+      crossorigin="anonymous"
+    />
   </head>
   <body>
-    <form id="form">
-      <input type="text" id="input" placeholder="Enter equation..." />
-      <button>Evaluate</button>
-      <div id="output"></div>
+    <form id="form" class="pure-form">
+      <fieldset>
+        <legend>Evaluate reverse polish notation equation</legend>
+        <input type="text" id="input" placeholder="Enter equation..." />
+        <button type="submit" class="pure-button pure-button-primary">
+          Evaluate
+        </button>
+      </fieldset>
     </form>
+
+    <div id="output"></div>
 
     <script src="bundle.js"></script>
   </body>
