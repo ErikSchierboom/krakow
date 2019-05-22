@@ -1,57 +1,21 @@
-module App
+module Krakow.App
 
-open Elmish
-open Elmish.React
-open Fable.React
-open Fable.React.Props
+open Fable.Import
+open Browser.Dom
+
 open Krakow.Core.Evaluation
 
-type Model = 
-    { Equation: string
-      Result: Result<int, string> option }
+// TODO: use rollup instead of Webpack to minimize bundle size
 
-type Message =
-    | ChangeValue of string
-    | Evaluate
+let form = document.getElementById("form") :?> Browser.Types.HTMLFormElement
+let input = document.getElementById("input") :?> Browser.Types.HTMLInputElement
+let output = document.getElementById("output") :?> Browser.Types.HTMLDivElement
 
-let init() = 
-    { Equation = ""
-      Result = None }
+form.onsubmit <- fun event ->
+    event.preventDefault()
 
-let update message model =
-    match message with
-    | ChangeValue newValue ->
-        { model with Equation = newValue }
-    | Evaluate ->
-        { model with Result = Some (evaluate model.Equation) }
-
-let viewResult result =
-    match result with
-    | Some (Result.Ok solution) -> [ str (string solution) ] 
-    | Some (Result.Error error) -> [ str error ] 
-    | None -> [] 
-
-let view model dispatch =
-
-  div []
-      [ form []
-            [
-                input [ Class "input"
-                        Value model.Equation
-                        OnChange (fun ev -> 
-                            let target = ev.target :?> Browser.Types.HTMLInputElement
-                            target.value |> string |> ChangeValue |> dispatch)
-                      ]
-                button [ OnClick (fun ev ->
-                    dispatch Evaluate
-                    ev.preventDefault()) ] [ str "Evaluate" ]
-                div [] (viewResult model.Result)
-            ]
-      ]
-
-// TODO: replace react with plain JS code
-
-Program.mkSimple init update view
-|> Program.withReactBatched "elmish-app"
-|> Program.withConsoleTrace
-|> Program.run
+    match evaluate input.value with
+    | Result.Ok result ->
+        output.innerText <- string result
+    | Result.Error error ->
+        output.innerText <- error
