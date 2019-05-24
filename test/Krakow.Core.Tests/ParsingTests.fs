@@ -7,7 +7,7 @@ open Krakow.Core.Parsing
 
 [<Fact>]
 let ``Parse empty equation`` () =
-    Assert.Equal(Result.Error "Error parsing equation", parse "")
+    Assert.Equal(Result.Error "Invalid equation", parse "")
 
 [<Fact>]
 let ``Parse single operand equation`` () =

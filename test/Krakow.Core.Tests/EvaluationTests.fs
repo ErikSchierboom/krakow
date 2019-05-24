@@ -6,7 +6,7 @@ open Krakow.Core.Evaluation
 
 [<Fact>]
 let ``Evaluate empty equation`` () =
-    Assert.Equal(Result.Error "Error parsing equation", evaluate "")
+    Assert.Equal(Result.Error "Invalid equation", evaluate "")
 
 [<Theory>]
 [<InlineData(0, "0")>]

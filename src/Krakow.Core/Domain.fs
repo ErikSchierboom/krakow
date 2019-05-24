@@ -7,21 +7,6 @@ type Expression =
     | Sub
     | Mul
     | Div
-
-    override this.ToString() =
-        match this with
-        | Operand i -> string i
-        | Add -> "+"
-        | Sub -> "-"
-        | Mul -> "*"
-        | Div -> "/"
     
 type Equation =
     | Equation of Expression list
-
-    override this.ToString() =
-        match this with
-        | Equation expressions ->
-            expressions
-            |> List.map string 
-            |> String.concat " "
