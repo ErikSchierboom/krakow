@@ -3,7 +3,7 @@ module Krakow.App
 open Fable.Import
 open Browser.Dom
 
-open Krakow.Core.Evaluation
+open Krakow.Core.Evaluator
 
 // TODO: use rollup instead of Webpack to minimize bundle size
 
@@ -15,7 +15,7 @@ form.onsubmit <- fun event ->
     event.preventDefault()
 
     match evaluate input.value with
-    | Result.Ok result ->
+    | Some result ->
         output.innerText <- string result
-    | Result.Error error ->
-        output.innerText <- error
+    | None ->
+        output.innerText <- "Error evaluating expression"

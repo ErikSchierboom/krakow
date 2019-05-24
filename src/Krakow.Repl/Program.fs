@@ -1,18 +1,17 @@
 open System
 
-//open Krakow.Core.Evaluation
+open Krakow.Core.Evaluator
 
 let private read() =
     Console.ReadLine()
 
 let private eval input =
-    Result.Error ""
-//    evaluate input
+    evaluate input
 
 let private print output =
     match output with
-    | Result.Ok outcome  -> printfn "%i" outcome
-    | Result.Error error -> printfn "%s" error
+    | Some outcome  -> printfn "%i" outcome
+    | None -> printfn "Error evaluating expression"
 
 [<EntryPoint>]
 let main _ =
