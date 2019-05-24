@@ -4,9 +4,14 @@ open Xunit
 
 open Krakow.Core.Evaluation
 
-[<Fact>]
-let ``Evaluate empty equation`` () =
-    Assert.Equal(Result.Error "Invalid equation", evaluate "")
+[<Theory>]
+[<InlineData("+")>]
+[<InlineData("1 2")>]
+[<InlineData("1 +")>]
+[<InlineData("1 2 + -")>]
+[<InlineData("1 2 - 3 * 4 5 /")>]
+let ``Evaluate invalid equation`` equation =
+    Assert.Equal(Result.Error "Invalid equation", evaluate equation)
 
 [<Theory>]
 [<InlineData(0, "0")>]
