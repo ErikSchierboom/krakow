@@ -5,9 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Domain.fs" />
-    <Compile Include="Parsing.fs" />
-    <Compile Include="Evaluation.fs" />
+    <Compile Include="Tokenizer.fs" />
+    <Compile Include="Parser.fs" />
+    <Compile Include="Evaluator.fs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,12 +1,13 @@
 open System
 
-open Krakow.Core.Evaluation
+//open Krakow.Core.Evaluation
 
 let private read() =
     Console.ReadLine()
 
 let private eval input =
-    evaluate input
+    Result.Error ""
+//    evaluate input
 
 let private print output =
     match output with
