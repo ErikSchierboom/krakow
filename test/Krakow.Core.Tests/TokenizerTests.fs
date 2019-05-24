@@ -1,26 +1,33 @@
 module Krakow.Core.Tests.TokenizerTests
 
 open Xunit
+open FsUnit.Xunit
 
 open Krakow.Core.Tokenizer
 
+[<Fact>]
+let ``Tokenize empty equation`` =
+    tokenize "" |> should be Empty
+
 [<Theory>]
-[<InlineData("")>]
 [<InlineData("^")>]
+[<InlineData("-1")>]
+[<InlineData("1.")>]
+[<InlineData("A")>]
 [<InlineData("Z")>]
 let ``Tokenize invalid equation`` equation =
-    Assert.Equal(None, tokenize equation)
+    tokenize equation |> should equal [Token.Unknown]
 
 [<Fact>]
 let ``Tokenize minimal equation`` () =
-    Assert.Equal(Some [Token.Number 5], tokenize "5")
+    tokenize "5" |> should equal [Token.Number 5]
     
     
 [<Fact>]
 let ``Tokenize simple equation`` () =
-    Assert.Equal(Some [Token.Number 5; Token.Number 3; Token.Add], tokenize "5 3 +")
+    tokenize "5 3 +" |> should equal [Token.Number 5; Token.Number 3; Token.Plus]
 
 [<Fact>]
 let ``Tokenize complex equation`` () =
-    let equation = [Token.Number 1; Token.Number 3; Token.Add; Token.Number 54; Token.Div; Token.Number 8; Token.Mul; Token.Number 4; Token.Sub]
-    Assert.Equal(Some equation, tokenize "1 3 + 54 / 8 * 4 -")
+    let expected = [Token.Number 1; Token.Number 3; Token.Plus; Token.Number 54; Token.Slash; Token.Number 8; Token.Asterisk; Token.Number 4; Token.Minus]
+    tokenize "1 3 + 54 / 8 * 4 -" |> should equal expected

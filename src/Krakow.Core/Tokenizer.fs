@@ -1,26 +1,28 @@
 module Krakow.Core.Tokenizer
 
-open FParsec
+open System
 
 type Token =
+    | Unknown
+    | Plus
+    | Minus
+    | Asterisk
+    | Slash
     | Number of int
-    | Add
-    | Sub
-    | Mul
-    | Div
+    
+let private (|Int|_|) (str: string) =
+   if Seq.forall Char.IsDigit str then Some (int str) else None
+    
+let private parseToken token =
+    match token with
+    | "+"   -> Plus
+    | "-"   -> Minus
+    | "*"   -> Asterisk
+    | "/"   -> Slash
+    | Int i -> Number i
+    | _     -> Unknown
 
-let private add = pstring "+" >>% Add
-let private sub = pstring "-" >>% Sub
-let private mul = pstring "*" >>% Mul
-let private div = pstring "/" >>% Div
-
-let private operand = pint32 |>> Number
-let private operator = choice [add; sub; mul; div]
-
-let private token = operator <|> operand
-let private tokens = sepBy1 token spaces1
-
-let tokenize str =
-    match run tokens str with
-    | Success(result, _, _) -> Some result
-    | _ -> None
+let tokenize (str: string) =
+    str.Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
+    |> Array.map parseToken
+    |> Array.toList

@@ -1,6 +1,14 @@
 module Krakow.Core.Parser
-//
-//open Tokenizer
+
+open Tokenizer
+
+type Expression =
+    | Operand of int
+    | Add of Expression * Expression
+    | Sub of Expression * Expression
+    | Mul of Expression * Expression
+    | Div of Expression * Expression
+
 //
 //let private toEquation expressions =
 //    Add
@@ -28,7 +36,15 @@ module Krakow.Core.Parser
 //
 //let private equation = sepBy1 expression spaces1
 //
+
+//let parseTokens tokens stack =
+////    match tokens, stack with
+////    | [], [] -> None
+////    | []
+//    None
+//    
+//
 //let parse str =
-//    match tokenize str with
-//    | Success(result, _, _) -> Result.Ok result
-//    | _ -> Result.Error "Invalid equation"
+//    str
+//    |> tokenize
+//    |> Option.map (parseTokens [])
