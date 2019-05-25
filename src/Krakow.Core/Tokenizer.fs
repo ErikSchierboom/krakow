@@ -28,5 +28,10 @@ let private parseTokens str =
     |> Array.map parseToken
 
 let tokenize str =
+    let folder parsedToken parsedTokens =
+        match parsedToken, parsedTokens with
+        | Some token, Some tokens -> Some (token :: tokens)
+        | _ -> None
+
     let tokens = parseTokens str
-    Array.foldBack (Option.map2 (fun token acc -> token :: acc)) tokens (Some [])
+    Array.foldBack folder tokens (Some [])
