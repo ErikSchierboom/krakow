@@ -21,15 +21,15 @@ let ``Parse invalid equation`` equation =
 [<InlineData("10", 10)>]
 [<InlineData("1337", 1337)>]
 let ``Parse minimal equation`` equation expected =
-    parse equation |> should equal (Some [Expression.Operand expected])
+    parse equation |> should equal (Some (Equation [Expression.Operand expected]))
 
 [<Fact>]
 let ``Parse simple equation`` () =
-    parse "5 3 +" |> should equal (Some [Expression.Operand 5; Expression.Operand 3; Expression.Add])
+    parse "5 3 +" |> should equal (Some (Equation [Expression.Operand 5; Expression.Operand 3; Expression.Add]))
 
 [<Fact>]
 let ``Parse complex equation`` () =
-    let expected = [
+    let expected = (Equation [
         Expression.Operand 1
         Expression.Operand 3
         Expression.Add
@@ -39,5 +39,5 @@ let ``Parse complex equation`` () =
         Expression.Mul
         Expression.Operand 4
         Expression.Sub
-    ]
+    ])
     parse "1 3 + 54 / 8 * 4 -" |> should equal (Some expected)

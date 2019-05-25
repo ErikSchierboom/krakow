@@ -11,8 +11,8 @@ let private evaluateExpression stack expression =
     | Div, x::y::xs -> y / x :: xs
     | _, _-> failwith "Invalid expression"
 
-let rec private evaluateEquation equation =
-    match List.fold evaluateExpression [] equation with
+let rec private evaluateEquation (Equation expressions) =
+    match List.fold evaluateExpression [] expressions with
     | [i] -> Some i
     | _   -> None
 

@@ -38,8 +38,8 @@ let private expressionToWebAssemblyInstruction expression =
     | Mul -> I32_Mul
     | Div -> I32_Div
     
-let private equationToWebAssemblyInstructions equation =
-    List.map expressionToWebAssemblyInstruction equation
+let private equationToWebAssemblyInstructions (Equation expressions) =
+    List.map expressionToWebAssemblyInstruction expressions
     
 let private equationToWebAssemblyModule equation =
     let function' = 

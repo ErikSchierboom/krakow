@@ -9,7 +9,8 @@ type Expression =
     | Mul
     | Div
     
-// TODO: introduce type for equation
+type Equation =
+    | Equation of Expression list
 
 let private parseExpression token =
     match token with
@@ -19,20 +20,23 @@ let private parseExpression token =
     | Slash    -> Div
     | Number i -> Operand i
     
-let private parseEquation tokens = List.map parseExpression tokens
+let private parseEquation tokens =
+    tokens
+    |> List.map parseExpression
+    |> Equation
 
-let private validateEquation equation =
-    let rec helper expressions stack =
-        match expressions, stack with
+let private validateEquation (Equation expressions) =
+    let rec helper unprocessedExpressions stack =
+        match unprocessedExpressions, stack with
         | Add::xs, Operand _::Operand _::ys -> helper xs (Operand 0 :: ys)
         | Sub::xs, Operand _::Operand _::ys -> helper xs (Operand 0 :: ys)
         | Mul::xs, Operand _::Operand _::ys -> helper xs (Operand 0 :: ys)
         | Div::xs, Operand _::Operand _::ys -> helper xs (Operand 0 :: ys)
         | Operand i::xs, _ -> helper xs (Operand i :: stack)
-        | [], [Operand _] -> Some equation
+        | [], [Operand _] -> Some (Equation expressions)
         | _ -> None
     
-    helper equation []
+    helper expressions []
 
 let parse str =
     str
