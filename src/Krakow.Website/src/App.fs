@@ -6,6 +6,9 @@ open Browser.Dom
 open Krakow.Core.Evaluator
 
 // TODO: use rollup instead of Webpack to minimize bundle size
+// TODO: show WebAssembly text output
+// TODO: show WebAssembly binary output
+// TODO: execute using WebAssembly
 
 let form = document.getElementById("form") :?> Browser.Types.HTMLFormElement
 let input = document.getElementById("input") :?> Browser.Types.HTMLInputElement

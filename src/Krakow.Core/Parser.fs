@@ -8,6 +8,8 @@ type Expression =
     | Sub
     | Mul
     | Div
+    
+// TODO: introduce type for equation
 
 let private parseExpression token =
     match token with
