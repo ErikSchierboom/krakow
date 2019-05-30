@@ -1,9 +1,12 @@
-module Krakow.App
+module Krakow.Website.App
 
 open Fable.Import
+open Fable.Core
+open Fable.Core.JS
 open Browser.Dom
 
 open Krakow.Core.WebAssembly.Binary
+open Krakow.Website.Interop
 
 // TODO: show WebAssembly text output
 // TODO: show WebAssembly binary output
