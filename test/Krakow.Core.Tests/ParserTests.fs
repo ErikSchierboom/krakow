@@ -6,6 +6,7 @@ open FsUnit.Xunit
 open Krakow.Core.Parser
 
 [<Theory>]
+[<InlineData("")>]
 [<InlineData("+")>]
 [<InlineData("-1")>]
 [<InlineData("1 2")>]

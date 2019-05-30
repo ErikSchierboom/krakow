@@ -3,76 +3,47 @@ module Krakow.Core.WebAssembly
 open Krakow.Core.Parser
 
 type ValueType =
-    | I32
+    | I32    
 
-type NumericInstruction =
+type Instruction =
     | I32_Const of int
     | I32_Add
     | I32_Sub
     | I32_Mul
     | I32_Div
-
-type Instruction =
-    | Numeric of NumericInstruction
-
-type FunctionType =
-    { ParameterTypes: ValueType list
-      ResultTypes: ValueType list }
     
-type TypeSection =
-    { Types: FunctionType list }
-    
-type Export =
-    { Name: string
-      FunctionIndex: int }
-    
-type ExportSection =
-    { Exports: Export list }
-    
-type CodeSection =
-    { Code: Instruction list }
-
-type Section =
-    | Type of TypeSection
-    | Export of ExportSection
-    | Code of CodeSection
+type Function =
+    { Result: ValueType
+      Body: Instruction list
+      Name: string }
 
 type Module =
-    { Sections: Section list }
+    { Function: Function }
 
 let private expressionToWebAssemblyInstruction expression =
     match expression with
-    | Operand i -> I32_Const i |> Numeric
-    | Add -> I32_Add |> Numeric
-    | Sub -> I32_Sub |> Numeric
-    | Mul -> I32_Mul |> Numeric
-    | Div -> I32_Div |> Numeric
+    | Operand i -> I32_Const i
+    | Add -> I32_Add
+    | Sub -> I32_Sub
+    | Mul -> I32_Mul
+    | Div -> I32_Div
 
-let private equationToWebAssemblyInstructions (Equation expressions) =
+let private equationToWebAssemblyCode (Equation expressions) =
     List.map expressionToWebAssemblyInstruction expressions
 
 let private equationToWebAssemblyModule equation =
-    { Sections =
-        [ Type { Types = [ { ParameterTypes = [I32; I32]; ResultTypes = [I32] } ] }
-          Export { Exports = [ { Name = "evaluate"; Description = Function } ] }
-          Code { Code = equationToWebAssemblyInstructions equation } ] }
+    { Function =
+        { Result = I32
+          Body = equationToWebAssemblyCode equation
+          Name = "evaluate" } }
 
 module Text =
     let private outputValueType valueType =
         match valueType with
         | I32 -> "i32"
         
-    let private outputParameter (Parameter type') =
-        sprintf "(param %s)" (outputType type')
-        
-    let private outputParameters parameters =
-        List.map outputParameter parameters
-        
-    let private outputResult (Result type') =
-        sprintf "(result %s)" (outputType type')
-        
-    let private outputResults results =
-        List.map outputResult results
+    let private outputResult resultType =
+        sprintf "(result %s)" (outputValueType resultType)
         
     let private outputInstruction instruction =
         match instruction with
@@ -83,32 +54,21 @@ module Text =
         | I32_Div -> "i32.div_32"
         
     let private outputBody instructions =
-        List.map outputInstruction instructions
+        instructions
+        |> List.map outputInstruction
+        |> String.concat " "
         
-    let private outputExport (Export name) =
+    let private outputExport name =
         sprintf "(export \"%s\")" name
         
     let private outputFunction function' =
-        let export = outputExport function'.Export
-        let parameters = outputParameters function'.Parameters
-        let results = outputResults function'.Results
+        let export = outputExport function'.Name
+        let result = outputResult function'.Result
         let body = outputBody function'.Body
-        
-        export :: parameters @ results @ body
-        |> String.concat " "
-        |> sprintf "(func %s)"
-        
-    let private outputSection section =
-        match section with
-        | Type typeSection ->
-        | Export exportSection ->
-        | Code codeSection ->
+        sprintf "(func %s %s %s)" export result body
 
     let private outputModule module' =
-        module'.Sections
-        |> outputSection
-        |> String.concat " "
-        |> sprintf "(module %s)"
+        sprintf "(module %s)" (outputFunction module'.Function)
         
     let equationToWebAssemblyText equation =
         equation
@@ -117,13 +77,16 @@ module Text =
         |> Option.map outputModule
 
 module Binary =
-    type SectionIndex =
+    type Section =
         | Type
         | Function
         | Export
         | Code
+        
+    type ExportType =
+        | Function
 
-    let outputUnsignedLEB128 i =
+    let private outputUnsignedLEB128 i =
         let rec helper bytes n =
             let byte = n &&& 0x7f
             let nextSevenBits = n >>> 7
@@ -136,65 +99,76 @@ module Binary =
                 helper bytesWithCorrectedByte nextSevenBits
                 
         helper [] i
+        
+    let private outputInteger i = outputUnsignedLEB128 i
 
-    let outputVector bytes =
-        let length = bytes |> List.length |> outputUnsignedLEB128
+    let private outputVector bytes =
+        let length = bytes |> List.length |> outputInteger
         length @ bytes
 
-    let outputMagic = [0x00; 0x61; 0x73; 0x6D]
+    let private outputMagicHeader = [0x00; 0x61; 0x73; 0x6d]
 
-    let outputVersion = [0x01; 0x00; 0x00; 0x00]
+    let private outputVersion = [0x01; 0x00; 0x00; 0x00]
 
-    let outputString (str: string) =
+    let private outputString (str: string) =
         str
         |> Seq.map int
         |> Seq.toList
         |> outputVector
 
-    let outputType type' =
-        match type' with
-        | I32 -> 0x7F
+    let private outputValueType valueType =
+        match valueType with
+        | I32 -> 0x7f
 
-    let outputSectionIndex index =
-        match index with
-        | SectionIndex.Type     -> 0
-        | SectionIndex.Function -> 3
-        | SectionIndex.Export   -> 7
-        | SectionIndex.Code     -> 10
-    
-    let outputSection sectionIndex bytes =
-        outputSectionIndex sectionIndex :: bytes
-        |> outputVector
+    let private outputSectionIndex section =
+        match section with
+        | Section.Type     -> outputInteger 0x01
+        | Section.Function -> outputInteger 0x03
+        | Section.Export   -> outputInteger 0x07
+        | Section.Code     -> outputInteger 0x0a
 
-    let outputParameter (Parameter type') =
-        outputType type'
+    let private outputSection section bytes =
+        outputSectionIndex section @ outputVector bytes
 
-    let outputParameters parameters =
-        parameters
-        |> List.map outputParameter
-        |> outputVector
+    let outputResult resultType =
+        outputValueType resultType
+        
+    let private outputFunctionTypes function' =
+        let parametersCount = outputInteger 0x00
+        let resultsCount = outputInteger 0x01
+        let resultType = outputResult function'.Result
+        let functionType = 0x60
+        
+        functionType :: parametersCount @ resultsCount @ [resultType]
 
-    let outputResult (Result type') =
-        outputType type'
-
-    let outputResults results =
-        results
-        |> List.map outputResult
-        |> outputVector
-
-    let outputFunctionTypes function' =
-        let parameters = outputParameters function'.Parameters
-        let results = outputResults function'.Results
-        0x60 :: parameters @ results
-
-    let outputTypeSection functions =
-         let functionTypes = List.collect outputFunctionTypes functions
-         let functionCount = List.length functions |> outputUnsignedLEB128
+    let private outputTypeSection function' =
+         let functionCount = outputUnsignedLEB128 0x01
+         let functionTypes = outputFunctionTypes function'
 
          functionCount @ functionTypes
-         |> outputSection SectionIndex.Type
+         |> outputSection Section.Type
+         
+    let private outputFunctionSection =
+        let functionsCount = outputInteger 0x01
+        let firstFunctionSignatureIndex = outputInteger 0x00
+        
+        functionsCount @ firstFunctionSignatureIndex
+        |> outputSection Section.Function
 
-    let outputInstruction instruction =
+    let private outputExportType exportType =
+        match exportType with
+        | ExportType.Function -> 0x00
+    
+    let private outputExportSection function' =
+        let exportsCount = outputInteger 0x01
+        let exportName = outputString function'.Name
+        let exportType = outputExportType ExportType.Function
+        let exportFunctionIndex = outputInteger 0x00
+        
+        exportsCount @ exportName @ [exportType] @ exportFunctionIndex
+        |> outputSection Section.Export
+
+    let private outputInstruction instruction =
         match instruction with
         | I32_Const i -> [0x41; i]
         | I32_Add -> [0x6a]
@@ -202,31 +176,28 @@ module Binary =
         | I32_Mul -> [0x6c]
         | I32_Div -> [0x6e]
         
-    let outputBody instructions =
-        List.map outputInstruction instructions
+    let private outputBody instructions =
+        let localDeclarationsCount = outputInteger 0x00
+        let instructions = List.collect outputInstruction instructions
+        let bodyEnd = 0x0b
         
-    let outputExport (Export.Export name) =
-        []
+        localDeclarationsCount @ instructions @ [bodyEnd]
+        |> outputVector
         
-    let outputFunction function' =
-        []
-//        let export = outputExport function'.Export
-//        let parameters = outputParameters function'.Parameters
-//        let results = outputResults function'.Results
-//        let body = outputBody function'.Body
-//        
-//        export :: parameters @ results @ body
-//        |> String.concat " "
-//        |> sprintf "(func %s)"
-        
-    let outputFunctions functions =
-        List.collect outputFunction functions
+    let private outputCodeSection function' =
+        let functionCount = outputInteger 0x01
+        let body = outputBody function'.Body
 
-    let outputModule (Module functions) =
-        outputMagic @ outputVersion
-//        outputFunctions functions
-//        |> String.concat " "
-//        |> sprintf "(module %s)"
+        functionCount @ body
+        |> outputSection Section.Code
+
+    let private outputModule module' =
+        let typeSection = outputTypeSection module'.Function
+        let functionSection = outputFunctionSection
+        let exportSection = outputExportSection module'.Function
+        let codeSection = outputCodeSection module'.Function
+        
+        outputMagicHeader @ outputVersion @ typeSection @functionSection @ exportSection @ codeSection
         
     let equationToWebAssemblyBinary equation =
         equation
