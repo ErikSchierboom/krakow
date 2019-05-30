@@ -5,7 +5,6 @@ open Browser.Dom
 
 open Krakow.Core.WebAssembly.Binary
 
-// TODO: use rollup instead of Webpack to minimize bundle size
 // TODO: show WebAssembly text output
 // TODO: show WebAssembly binary output
 // TODO: execute using WebAssembly
