@@ -1,4 +1,5 @@
 const path = require("path");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = (env, options) => {
   const isProduction = options.mode === "production";
@@ -6,7 +7,8 @@ module.exports = (env, options) => {
   return {
     mode: "development",
     entry: {
-      bunlde: ["./src/App.fsproj", "./src/styles/index.scss"]
+      app: ["./src/App.fsproj"],
+      style: ["./src/styles/index.scss"]
     },
     output: {
       path: path.join(__dirname, "./public"),
@@ -24,9 +26,24 @@ module.exports = (env, options) => {
         },
         {
           test: /\.s?css$/,
-          use: ["style-loader", "css-loader", "sass-loader"]
+          use: [
+            {
+              loader: MiniCssExtractPlugin.loader,
+              options: {
+                hmr: process.env.NODE_ENV === "development"
+              }
+            },
+            "css-loader",
+            "sass-loader"
+          ]
         }
       ]
-    }
+    },
+    plugins: [
+      new MiniCssExtractPlugin({
+        filename: "[name].css",
+        chunkFilename: "[id].css"
+      })
+    ]
   };
 };
