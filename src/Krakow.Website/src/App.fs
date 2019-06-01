@@ -44,4 +44,3 @@ form.onsubmit <- fun event ->
 
 // TODO: make styling prettier
 // TODO: try to use prepack
-// TODO: use PurgeCSS https://www.purgecss.com/cli
