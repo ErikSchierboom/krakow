@@ -7,23 +7,34 @@
     <link rel="shortcut icon" href="fable.ico" />
     <link
       rel="stylesheet"
-      href="https://unpkg.com/purecss@1.0.0/build/pure-min.css"
-      integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w"
+      href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css"
+      integrity="sha384-CvZmWkdi104sUjHwSOGWqzKWcCDbNrRMh1vE0ZctUwx8o24edlkwLmr0/V6g/GZq"
       crossorigin="anonymous"
     />
+    <link rel="stylesheet" href="index.css" />
   </head>
   <body>
-    <form id="form" class="pure-form">
-      <fieldset>
-        <legend>Evaluate reverse polish notation equation</legend>
-        <input type="text" id="input" placeholder="Enter equation..." />
-        <button type="submit" class="pure-button pure-button-primary">
-          Evaluate
-        </button>
-      </fieldset>
-    </form>
-
-    <div id="output"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm">
+          <form id="form">
+            <input type="text" id="input" placeholder="Enter equation..." />
+            <button type="submit">Evaluate</button>
+          </form>
+        </div>
+        <div class="col-sm">
+          <div id="output"></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm">
+          <div id="text"></div>
+        </div>
+        <div class="col-sm">
+          <div id="binary"></div>
+        </div>
+      </div>
+    </div>
 
     <script src="bundle.js"></script>
   </body>

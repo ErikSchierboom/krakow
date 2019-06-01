@@ -1,0 +1,13 @@
+html,
+body {
+  height: 100%;
+}
+
+.container {
+  height: 100%;
+  padding: 0;
+}
+
+.row {
+  height: 50%;
+}
