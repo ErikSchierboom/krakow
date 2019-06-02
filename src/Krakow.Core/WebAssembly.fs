@@ -72,9 +72,8 @@ module Text =
         
     let equationToWebAssemblyText equation =
         equation
-        |> parse
-        |> Option.map equationToWebAssemblyModule
-        |> Option.map outputModule
+        |> equationToWebAssemblyModule
+        |> outputModule
 
 module Binary =
     type Section =
@@ -201,6 +200,5 @@ module Binary =
         
     let equationToWebAssemblyBinary equation =
         equation
-        |> parse
-        |> Option.map equationToWebAssemblyModule
-        |> Option.map outputModule
+        |> equationToWebAssemblyModule
+        |> outputModule
