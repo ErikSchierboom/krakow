@@ -51,8 +51,8 @@ let update msg model =
         let wasm = equationToWebAssemblyBinary equation
         let wasmBytes = Uint8Array.from wasm
 
-        model, Cmd.OfPromise.either WebAssembly.instantiate wasmBytes (fun wa -> Evaluated (
-            { equation = string equation; result = string (wa.instance.exports?evaluate()); wasm = wasm; wat = wat })) (fun _ -> Error "run error")
+        model, Cmd.OfPromise.either WebAssembly.instantiate wasmBytes 
+                (fun wa -> Evaluated ({ equation = string equation; result = string (wa.instance.exports?evaluate()); wasm = wasm; wat = wat })) (fun _ -> Error "run error")
     | Evaluated evaluateResult ->
         printfn "evaluated %A" evaluateResult
         { model with current = evaluateResult; history = model.current :: model.history }, Cmd.none
