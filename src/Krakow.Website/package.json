@@ -3,7 +3,8 @@
   "sideEffects": false,
   "scripts": {
     "start": "webpack-dev-server",
-    "build": "webpack --mode=production"
+    "build": "webpack --mode=production",
+    "deploy": "npm run build && firebase deploy"
   },
   "dependencies": {
     "@babel/core": "^7.4.5",
