@@ -1,5 +1,6 @@
 {
   "private": true,
+  "sideEffects": false,
   "scripts": {
     "start": "webpack-dev-server",
     "build": "webpack --mode=production"
@@ -10,6 +11,6 @@
     "fable-loader": "^2.1.7",
     "webpack": "^4.32.2",
     "webpack-cli": "^3.3.2",
-    "webpack-dev-server": "^3.5.0"
+    "webpack-dev-server": "^3.5.1"
   }
 }
