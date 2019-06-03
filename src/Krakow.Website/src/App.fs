@@ -1,24 +1,106 @@
-module Krakow.App
+module Krakow.Website.App
 
-open Fable.Import
+open Elmish
+
 open Browser.Dom
 
-open Krakow.Core.Evaluator
+open Fable.Import
+open Fable.Core.JsInterop
 
-// TODO: use rollup instead of Webpack to minimize bundle size
-// TODO: show WebAssembly text output
-// TODO: show WebAssembly binary output
-// TODO: execute using WebAssembly
+open Krakow.Core.Parser
+open Krakow.Core.WebAssembly.Text
+open Krakow.Core.WebAssembly.Binary
+open Krakow.Website.Interop
 
-let form = document.getElementById("form") :?> Browser.Types.HTMLFormElement
-let input = document.getElementById("input") :?> Browser.Types.HTMLInputElement
-let output = document.getElementById("output") :?> Browser.Types.HTMLDivElement
+let byteToHex (b: int) = b.ToString("X2")
 
-form.onsubmit <- fun event ->
-    event.preventDefault()
+type Evaluation =
+    { result: int
+      wasm: int list
+      wat: string }
 
-    match evaluate input.value with
-    | Some result ->
-        output.innerText <- string result
-    | None ->
-        output.innerText <- "Error evaluating expression"
+type EvaluationError =
+    | InvalidWebAssembly
+    | InvalidEquation
+
+type Context =
+    { formElement:     Browser.Types.HTMLFormElement
+      equationElement: Browser.Types.HTMLInputElement
+      resultElement:   Browser.Types.HTMLDivElement
+      watElement:      Browser.Types.HTMLDivElement
+      wasmElement:     Browser.Types.HTMLDivElement }
+
+type Model = 
+    { evaluation: Result<Evaluation, EvaluationError> option
+      context: Context }
+
+type Msg =
+    | Evaluate of string
+    | Evaluated of Evaluation
+    | EvaluationError of EvaluationError
+
+let parseSuccess model equation =
+    let wat = equationToWebAssemblyText equation
+    let wasm = equationToWebAssemblyBinary equation
+    let wasmByteArray = Uint8Array.from wasm
+
+    let onSuccess wa = Evaluated ({ result = wa.instance.exports?evaluate(); wasm = wasm; wat = wat })
+    let onError _ = EvaluationError InvalidWebAssembly
+    let cmd = Cmd.OfPromise.either WebAssembly.instantiate wasmByteArray onSuccess onError
+
+    model, cmd
+
+let parseError model =
+    model, Cmd.ofMsg (EvaluationError InvalidEquation)
+
+let update msg model = 
+    match msg with
+    | Evaluate input ->
+        parse input
+        |> Option.map (parseSuccess model)
+        |> Option.defaultValue (parseError model)
+    | Evaluated evaluation ->
+        { model with evaluation = Some (Ok evaluation) }, Cmd.none
+    | EvaluationError error ->
+        { model with evaluation = Some (Error error) }, Cmd.none
+
+let init () = 
+    { evaluation = None
+      context = 
+          { formElement     = document.getElementById("form")     :?> Browser.Types.HTMLFormElement
+            equationElement = document.getElementById("equation") :?> Browser.Types.HTMLInputElement
+            resultElement   = document.getElementById("result")   :?> Browser.Types.HTMLDivElement
+            watElement      = document.getElementById("wat")      :?> Browser.Types.HTMLDivElement
+            wasmElement     = document.getElementById("wasm")     :?> Browser.Types.HTMLDivElement } }, Cmd.none
+
+let viewSuccess model (evaluation: Evaluation) =
+    let byte2hex (byte: int) = byte.ToString("X2")
+
+    model.context.resultElement.innerText <- string evaluation.result
+    model.context.watElement.innerText <- evaluation.wat
+    model.context.wasmElement.innerText <- evaluation.wasm |> List.map byte2hex |> String.concat " "
+
+let viewError model error =
+    let errorText =
+        match error with
+        | InvalidEquation -> "Invalid equation"
+        | InvalidWebAssembly -> "Invalid WebAssembly binary"
+
+    model.context.resultElement.innerText <- errorText
+    model.context.watElement.innerText <- errorText
+    model.context.wasmElement.innerText <- errorText
+
+let viewResult model result =
+    result
+    |> Result.map (viewSuccess model)
+    |> Result.mapError (viewError model)
+
+let view model dispatch =
+    model.context.formElement.onsubmit <- fun event ->
+        event.preventDefault()
+        dispatch (Evaluate model.context.equationElement.value)
+
+    Option.map (viewResult model) model.evaluation
+
+Program.mkProgram init update view
+|> Program.run

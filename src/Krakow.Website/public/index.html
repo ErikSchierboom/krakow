@@ -7,24 +7,42 @@
     <link rel="shortcut icon" href="fable.ico" />
     <link
       rel="stylesheet"
-      href="https://unpkg.com/purecss@1.0.0/build/pure-min.css"
-      integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w"
+      href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css"
+      integrity="sha384-CvZmWkdi104sUjHwSOGWqzKWcCDbNrRMh1vE0ZctUwx8o24edlkwLmr0/V6g/GZq"
       crossorigin="anonymous"
     />
   </head>
   <body>
-    <form id="form" class="pure-form">
-      <fieldset>
-        <legend>Evaluate reverse polish notation equation</legend>
-        <input type="text" id="input" placeholder="Enter equation..." />
-        <button type="submit" class="pure-button pure-button-primary">
-          Evaluate
-        </button>
-      </fieldset>
-    </form>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-4">
+          <form id="form">
+            <fieldset>
+              <legend>BNF equation</legend>
+              <label for="equation">Equation</label>
+              <input
+                type="text"
+                id="equation"
+                placeholder="Enter equation..."
+              />
+              <button type="submit">Evaluate</button>
+            </fieldset>
+          </form>
+        </div>
 
-    <div id="output"></div>
+        <div class="col-sm-8">
+          <h3 class="doc">Result</h3>
+          <p class="doc" id="result"></p>
 
-    <script src="bundle.js"></script>
+          <h3 class="doc">WAT</h3>
+          <p class="doc" id="wat"></p>
+
+          <h3 class="doc">WASM</h3>
+          <p class="doc" id="wasm"></p>
+        </div>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
   </body>
 </html>
