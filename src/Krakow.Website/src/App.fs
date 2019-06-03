@@ -12,68 +12,97 @@ open Krakow.Core.WebAssembly.Text
 open Krakow.Core.WebAssembly.Binary
 open Krakow.Website.Interop
 
-let form   = document.getElementById("form")   :?> Browser.Types.HTMLFormElement
-let input  = document.getElementById("input")  :?> Browser.Types.HTMLInputElement
-let output = document.getElementById("output") :?> Browser.Types.HTMLDivElement
-let text   = document.getElementById("text")   :?> Browser.Types.HTMLDivElement
-let binary = document.getElementById("binary") :?> Browser.Types.HTMLDivElement
-
 let byteToHex (b: int) = b.ToString("X2")
 
-type EvaluateResult =
-    { equation: string
-      result: string
+type Evaluation =
+    { result: int
       wasm: int list
       wat: string }
 
-type Model =
-    { current: EvaluateResult
-      history: EvaluateResult list }
+type EvaluationError =
+    | InvalidWebAssembly
+    | InvalidEquation
 
-type Msg = 
-    | Parse of string
-    | Error of string
-    | Evaluate of Equation
-    | Evaluated of EvaluateResult
+type Context =
+    { formElement:     Browser.Types.HTMLFormElement
+      equationElement: Browser.Types.HTMLInputElement
+      resultElement:   Browser.Types.HTMLDivElement
+      watElement:      Browser.Types.HTMLDivElement
+      wasmElement:     Browser.Types.HTMLDivElement }
+
+type Model = 
+    { evaluation: Result<Evaluation, EvaluationError> option
+      context: Context }
+
+type Msg =
+    | Evaluate of string
+    | Evaluated of Evaluation
+    | EvaluationError of EvaluationError
+
+let parseSuccess model equation =
+    let wat = equationToWebAssemblyText equation
+    let wasm = equationToWebAssemblyBinary equation
+    let wasmByteArray = Uint8Array.from wasm
+
+    let onSuccess wa = Evaluated ({ result = wa.instance.exports?evaluate(); wasm = wasm; wat = wat })
+    let onError _ = EvaluationError InvalidWebAssembly
+    let cmd = Cmd.OfPromise.either WebAssembly.instantiate wasmByteArray onSuccess onError
+
+    model, cmd
+
+let parseError model =
+    model, Cmd.ofMsg (EvaluationError InvalidEquation)
 
 let update msg model = 
     match msg with
-    | Parse input ->
-        match parse input with
-        | Some equation ->
-            model, Cmd.ofMsg (Evaluate equation)
-        | None ->
-            model, Cmd.ofMsg (Error "Parse error")
-    | Error message ->
-        { model with current = { model.current with result = message } }, Cmd.none
-    | Evaluate equation ->
-        let wat = equationToWebAssemblyText equation
-        let wasm = equationToWebAssemblyBinary equation
-        let wasmBytes = Uint8Array.from wasm
-
-        model, Cmd.OfPromise.either WebAssembly.instantiate wasmBytes 
-                (fun wa -> Evaluated ({ equation = string equation; result = string (wa.instance.exports?evaluate()); wasm = wasm; wat = wat })) (fun _ -> Error "run error")
-    | Evaluated evaluateResult ->
-        printfn "evaluated %A" evaluateResult
-        { model with current = evaluateResult; history = model.current :: model.history }, Cmd.none
+    | Evaluate input ->
+        parse input
+        |> Option.map (parseSuccess model)
+        |> Option.defaultValue (parseError model)
+    | Evaluated evaluation ->
+        { model with evaluation = Some (Ok evaluation) }, Cmd.none
+    | EvaluationError error ->
+        { model with evaluation = Some (Error error) }, Cmd.none
 
 let init () = 
-    let initialResult = { equation = ""; result = ""; wasm = []; wat = ""}
-    let initialModel = { current = initialResult; history = [] }
-    initialModel, Cmd.none
+    { evaluation = None
+      context = 
+          { formElement     = document.getElementById("form")   :?> Browser.Types.HTMLFormElement
+            equationElement = document.getElementById("input")  :?> Browser.Types.HTMLInputElement
+            resultElement   = document.getElementById("output") :?> Browser.Types.HTMLDivElement
+            watElement      = document.getElementById("text")   :?> Browser.Types.HTMLDivElement
+            wasmElement     = document.getElementById("binary") :?> Browser.Types.HTMLDivElement } }, Cmd.none
+
+let viewSuccess model (evaluation: Evaluation) =
+    let byte2hex (byte: int) = byte.ToString("X2")
+
+    model.context.resultElement.innerText <- string evaluation.result
+    model.context.watElement.innerText <- evaluation.wat
+    model.context.wasmElement.innerText <- evaluation.wasm |> List.map byte2hex |> String.concat " "
+
+let viewError model error =
+    let errorText =
+        match error with
+        | InvalidEquation -> "Invalid equation"
+        | InvalidWebAssembly -> "Invalid WebAssembly binary"
+
+    model.context.resultElement.innerText <- errorText
+    model.context.watElement.innerText <- ""
+    model.context.wasmElement.innerText <- ""
+
+let viewResult model result =
+    result
+    |> Result.map (viewSuccess model)
+    |> Result.mapError (viewError model)
 
 let view model dispatch =
-    form.onsubmit <- fun event ->
+    model.context.formElement.onsubmit <- fun event ->
         event.preventDefault()
-        dispatch (Parse input.value)
+        dispatch (Evaluate model.context.equationElement.value)
 
-    binary.innerText <- model.current.wasm |> List.map byteToHex |> String.concat " "
-    text.innerText <- model.current.wat
-    output.innerText <- string model.current.result
+    Option.map (viewResult model) model.evaluation
 
 Program.mkProgram init update view
-|> Program.withConsoleTrace
 |> Program.run
 
 // TODO: make styling prettier
-// TODO: try to use prepack
