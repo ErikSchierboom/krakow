@@ -11,27 +11,34 @@
       integrity="sha384-CvZmWkdi104sUjHwSOGWqzKWcCDbNrRMh1vE0ZctUwx8o24edlkwLmr0/V6g/GZq"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="main.css" />
   </head>
   <body>
     <div class="container">
       <div class="row">
-        <div class="col-sm">
+        <div class="col-sm-4">
           <form id="form">
-            <input type="text" id="input" placeholder="Enter equation..." />
-            <button type="submit">Evaluate</button>
+            <fieldset>
+              <legend>BNF equation</legend>
+              <label for="equation">Equation</label>
+              <input
+                type="text"
+                id="equation"
+                placeholder="Enter equation..."
+              />
+              <button type="submit">Evaluate</button>
+            </fieldset>
           </form>
         </div>
-        <div class="col-sm">
-          <div id="output"></div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm">
-          <div id="text"></div>
-        </div>
-        <div class="col-sm">
-          <div id="binary"></div>
+
+        <div class="col-sm-8">
+          <h3 class="doc">Result</h3>
+          <p class="doc" id="result"></p>
+
+          <h3 class="doc">WAT</h3>
+          <p class="doc" id="wat"></p>
+
+          <h3 class="doc">WASM</h3>
+          <p class="doc" id="wasm"></p>
         </div>
       </div>
     </div>

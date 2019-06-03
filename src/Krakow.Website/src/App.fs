@@ -67,11 +67,11 @@ let update msg model =
 let init () = 
     { evaluation = None
       context = 
-          { formElement     = document.getElementById("form")   :?> Browser.Types.HTMLFormElement
-            equationElement = document.getElementById("input")  :?> Browser.Types.HTMLInputElement
-            resultElement   = document.getElementById("output") :?> Browser.Types.HTMLDivElement
-            watElement      = document.getElementById("text")   :?> Browser.Types.HTMLDivElement
-            wasmElement     = document.getElementById("binary") :?> Browser.Types.HTMLDivElement } }, Cmd.none
+          { formElement     = document.getElementById("form")     :?> Browser.Types.HTMLFormElement
+            equationElement = document.getElementById("equation") :?> Browser.Types.HTMLInputElement
+            resultElement   = document.getElementById("result")   :?> Browser.Types.HTMLDivElement
+            watElement      = document.getElementById("wat")      :?> Browser.Types.HTMLDivElement
+            wasmElement     = document.getElementById("wasm")     :?> Browser.Types.HTMLDivElement } }, Cmd.none
 
 let viewSuccess model (evaluation: Evaluation) =
     let byte2hex (byte: int) = byte.ToString("X2")
@@ -87,8 +87,8 @@ let viewError model error =
         | InvalidWebAssembly -> "Invalid WebAssembly binary"
 
     model.context.resultElement.innerText <- errorText
-    model.context.watElement.innerText <- ""
-    model.context.wasmElement.innerText <- ""
+    model.context.watElement.innerText <- errorText
+    model.context.wasmElement.innerText <- errorText
 
 let viewResult model result =
     result
@@ -104,5 +104,3 @@ let view model dispatch =
 
 Program.mkProgram init update view
 |> Program.run
-
-// TODO: make styling prettier
