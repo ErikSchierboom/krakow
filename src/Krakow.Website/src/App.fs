@@ -1,11 +1,11 @@
 module Krakow.Website.App
 
 open Elmish
+open Elmish.React
 
-open Browser.Dom
-
-open Fable.Import
 open Fable.Core.JsInterop
+open Fable.React
+open Fable.React.Props
 
 open Krakow.Core.Parser
 open Krakow.Core.WebAssembly.Text
@@ -23,84 +23,89 @@ type EvaluationError =
     | InvalidWebAssembly
     | InvalidEquation
 
-type Context =
-    { formElement:     Browser.Types.HTMLFormElement
-      equationElement: Browser.Types.HTMLInputElement
-      resultElement:   Browser.Types.HTMLDivElement
-      watElement:      Browser.Types.HTMLDivElement
-      wasmElement:     Browser.Types.HTMLDivElement }
-
-type Model = 
+type Model =
     { evaluation: Result<Evaluation, EvaluationError> option
-      context: Context }
+      equation: string }
 
 type Msg =
-    | Evaluate of string
-    | Evaluated of Evaluation
-    | EvaluationError of EvaluationError
+    | UpdateEquation of string
+    | EvaluateEquation
+    | EquationEvaluatedSuccessfully of Evaluation
+    | EquationEvaluatedWithError of EvaluationError
 
-let parseSuccess model equation =
+let init() =
+    { evaluation = None
+      equation = "" }, Cmd.none
+
+let parseSuccess (model: Model) equation =
     let wat = equationToWebAssemblyText equation
     let wasm = equationToWebAssemblyBinary equation
     let wasmByteArray = Uint8Array.from wasm
 
-    let onSuccess wa = Evaluated ({ result = wa.instance.exports?evaluate(); wasm = wasm; wat = wat })
-    let onError _ = EvaluationError InvalidWebAssembly
+    let onSuccess wa =
+        EquationEvaluatedSuccessfully
+            ({ result = wa.instance.exports?evaluate ()
+               wasm = wasm
+               wat = wat })
+
+    let onError _ = EquationEvaluatedWithError InvalidWebAssembly
     let cmd = Cmd.OfPromise.either WebAssembly.instantiate wasmByteArray onSuccess onError
 
     model, cmd
 
-let parseError model =
-    model, Cmd.ofMsg (EvaluationError InvalidEquation)
+let parseError (model: Model) = model, Cmd.ofMsg (EquationEvaluatedWithError InvalidEquation)
 
-let update msg model = 
+let update msg model =
     match msg with
-    | Evaluate input ->
-        parse input
+    | UpdateEquation equation -> { model with equation = equation }, Cmd.none
+    | EvaluateEquation ->
+        parse model.equation
         |> Option.map (parseSuccess model)
         |> Option.defaultValue (parseError model)
-    | Evaluated evaluation ->
-        { model with evaluation = Some (Ok evaluation) }, Cmd.none
-    | EvaluationError error ->
-        { model with evaluation = Some (Error error) }, Cmd.none
+    | EquationEvaluatedSuccessfully evaluation -> { model with evaluation = Some(Ok evaluation) }, Cmd.none
+    | EquationEvaluatedWithError error -> { model with evaluation = Some(Error error) }, Cmd.none
 
-let init () = 
-    { evaluation = None
-      context = 
-          { formElement     = document.getElementById("form")     :?> Browser.Types.HTMLFormElement
-            equationElement = document.getElementById("equation") :?> Browser.Types.HTMLInputElement
-            resultElement   = document.getElementById("result")   :?> Browser.Types.HTMLDivElement
-            watElement      = document.getElementById("wat")      :?> Browser.Types.HTMLDivElement
-            wasmElement     = document.getElementById("wasm")     :?> Browser.Types.HTMLDivElement } }, Cmd.none
+let view (model: Model) dispatch =
+    let viewInputForm =
+        form []
+            [ fieldset []
+                  [ legend [] [ str "Reverse Polish Notation" ]
+                    label [ HtmlFor "equation" ] [ str "Equation" ]
+                    input
+                        [ Placeholder "Enter equation..."
+                          Value model.equation
+                          OnChange(fun ev -> dispatch (UpdateEquation ev.Value)) ]
+                    button [ OnClick(fun _ -> dispatch EvaluateEquation) ] [ str "Evaluate" ] ] ]
 
-let viewSuccess model (evaluation: Evaluation) =
-    let byte2hex (byte: int) = byte.ToString("X2")
+    let viewInput = div [ Class "col-sm-4" ] [ viewInputForm ]
 
-    model.context.resultElement.innerText <- string evaluation.result
-    model.context.watElement.innerText <- evaluation.wat
-    model.context.wasmElement.innerText <- evaluation.wasm |> List.map byte2hex |> String.concat " "
+    let viewEvaluationResult map: string =
+        match model.evaluation with
+        | Some(Ok evaluation) -> map evaluation
+        | Some(Error error) ->
+            match error with
+            | InvalidEquation -> "Invalid equation"
+            | InvalidWebAssembly -> "Invalid WebAssembly binary"
+        | None -> ""
 
-let viewError model error =
-    let errorText =
-        match error with
-        | InvalidEquation -> "Invalid equation"
-        | InvalidWebAssembly -> "Invalid WebAssembly binary"
+    let viewOutputHeader name = h3 [ Class "doc" ] [ str name ]
+    let viewOutputDetails map = p [ Class "doc" ] [ str (viewEvaluationResult map) ]
 
-    model.context.resultElement.innerText <- errorText
-    model.context.watElement.innerText <- errorText
-    model.context.wasmElement.innerText <- errorText
+    let viewOutput =
+        div [ Class "col-sm-8" ]
+            [ viewOutputHeader "Result"
+              viewOutputDetails (fun evaluation -> string evaluation.result)
+              viewOutputHeader "WAT"
+              viewOutputDetails (fun evaluation -> evaluation.wat)
+              viewOutputHeader "WASM"
+              viewOutputDetails (fun evaluation ->
+                  evaluation.wasm
+                  |> List.map byteToHex
+                  |> String.concat " ") ]
 
-let viewResult model result =
-    result
-    |> Result.map (viewSuccess model)
-    |> Result.mapError (viewError model)
-
-let view model dispatch =
-    model.context.formElement.onsubmit <- fun event ->
-        event.preventDefault()
-        dispatch (Evaluate model.context.equationElement.value)
-
-    Option.map (viewResult model) model.evaluation
+    div [ Class "container" ] [ div [ Class "row" ] [ viewInput; viewOutput ] ]
 
 Program.mkProgram init update view
+|> Program.withReactSynchronous "app"
+|> Program.withConsoleTrace
 |> Program.run

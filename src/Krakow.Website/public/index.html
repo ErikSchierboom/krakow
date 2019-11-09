@@ -13,36 +13,7 @@
     />
   </head>
   <body>
-    <div class="container">
-      <div class="row">
-        <div class="col-sm-4">
-          <form id="form">
-            <fieldset>
-              <legend>Reverse Polish Notation</legend>
-              <label for="equation">Equation</label>
-              <input
-                type="text"
-                id="equation"
-                placeholder="Enter equation..."
-              />
-              <button type="submit">Evaluate</button>
-            </fieldset>
-          </form>
-        </div>
-
-        <div class="col-sm-8">
-          <h3 class="doc">Result</h3>
-          <p class="doc" id="result"></p>
-
-          <h3 class="doc">WAT</h3>
-          <p class="doc" id="wat"></p>
-
-          <h3 class="doc">WASM</h3>
-          <p class="doc" id="wasm"></p>
-        </div>
-      </div>
-    </div>
-
-    <script src="main.js"></script>
+    <div id="app"></div>
+    <script src="bundle.js"></script>
   </body>
 </html>
