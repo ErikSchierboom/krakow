@@ -13,11 +13,13 @@ let private print output =
     | Some outcome  -> printfn "%i" outcome
     | None -> printfn "Error evaluating expression"
 
-[<EntryPoint>]
-let main _ =
+let private loop() = 
     while true do
         read()
         |> eval
         |> print
-    
+
+[<EntryPoint>]
+let main _ =
+    loop()
     0
