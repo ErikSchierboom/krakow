@@ -67,7 +67,7 @@ let update msg model =
 
 let view (model: Model) dispatch =
     let viewInputForm =
-        form []
+        form [ OnSubmit(fun ev -> ev.preventDefault()) ]
             [ fieldset []
                   [ legend [] [ str "Reverse Polish Notation" ]
                     label [ HtmlFor "equation" ] [ str "Equation" ]
@@ -75,7 +75,7 @@ let view (model: Model) dispatch =
                         [ Placeholder "Enter equation..."
                           Value model.equation
                           OnChange(fun ev -> dispatch (UpdateEquation ev.Value)) ]
-                    button [ OnClick(fun _ -> dispatch EvaluateEquation) ] [ str "Evaluate" ] ] ]
+                    button [ OnClick(fun ev -> dispatch EvaluateEquation) ] [ str "Evaluate" ] ] ]
 
     let viewInput = div [ Class "col-sm-4" ] [ viewInputForm ]
 
