@@ -1,6 +1,9 @@
 module Krakow.Core.Tokenizer
 
-open System
+open Krakow.Core.Helpers
+
+type TokenizerError =
+    | InvalidToken of string
 
 type Token =
     | Plus
@@ -8,30 +11,21 @@ type Token =
     | Asterisk
     | Slash
     | Number of int
-    
-let private (|Int|_|) (str: string) = if Seq.forall Char.IsDigit str then Some (int str) else None
 
-let private words (str: string) = str.Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
+type Tokens = Tokens of Token list
 
-let private parseToken token =
-    match token with
-    | "+"   -> Some Plus
-    | "-"   -> Some Minus
-    | "*"   -> Some Asterisk
-    | "/"   -> Some Slash
-    | Int i -> Some (Number i)
-    | _     -> None
-    
-let private parseTokens str =
+let private tokenizeWord word =
+    match word with
+    | "+" -> Ok Plus
+    | "-" -> Ok Minus
+    | "*" -> Ok Asterisk
+    | "/" -> Ok Slash
+    | Int i -> Ok(Number i)
+    | _ -> Error(InvalidToken word)
+
+let tokenize (str: string) =
     str
-    |> words
-    |> Array.map parseToken
-
-let tokenize str =
-    let folder parsedToken parsedTokens =
-        match parsedToken, parsedTokens with
-        | Some token, Some tokens -> Some (token :: tokens)
-        | _ -> None
-
-    let tokens = parseTokens str
-    Array.foldBack folder tokens (Some [])
+    |> String.words
+    |> List.map tokenizeWord
+    |> Result.ofList
+    |> Result.map Tokens

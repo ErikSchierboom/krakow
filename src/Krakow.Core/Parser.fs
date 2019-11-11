@@ -2,25 +2,33 @@ module Krakow.Core.Parser
 
 open Tokenizer
 
-type Expression =
-    | Operand of int
+type Operator =
     | Add
     | Sub
     | Mul
     | Div
-    
-type Equation =
-    | Equation of Expression list
+
+type Expression =
+    | Operator of Operator
+    | Operand of int
+
+type Equation = Equation of Expression list
+
+type ParserError =
+    | InvalidToken of string
+    | EmptyEquation
+    | DoesNotReduceToSingleNumber
+    | OperatorMissingOperands of Operator
 
 let private parseExpression token =
     match token with
-    | Plus     -> Add
-    | Minus    -> Sub
-    | Asterisk -> Mul
-    | Slash    -> Div
+    | Plus -> Operator Add
+    | Minus -> Operator Sub
+    | Asterisk -> Operator Mul
+    | Slash -> Operator Div
     | Number i -> Operand i
-    
-let private parseEquation tokens =
+
+let private parseEquation (Tokens tokens) =
     tokens
     |> List.map parseExpression
     |> Equation
@@ -28,18 +36,22 @@ let private parseEquation tokens =
 let private validateEquation (Equation expressions) =
     let rec helper unprocessedExpressions stack =
         match unprocessedExpressions, stack with
-        | Add::xs, Operand _::Operand _::ys -> helper xs (Operand 0 :: ys)
-        | Sub::xs, Operand _::Operand _::ys -> helper xs (Operand 0 :: ys)
-        | Mul::xs, Operand _::Operand _::ys -> helper xs (Operand 0 :: ys)
-        | Div::xs, Operand _::Operand _::ys -> helper xs (Operand 0 :: ys)
-        | Operand i::xs, _ -> helper xs (Operand i :: stack)
-        | [], [Operand _] -> Some (Equation expressions)
-        | _ -> None
-    
+        | [], [] -> Error(EmptyEquation)
+        | [], [ Operand _ ] -> Ok(Equation expressions)
+        | Operand i :: xs, _ -> helper xs (Operand i :: stack)
+        | Operator _ :: xs, Operand _ :: Operand _ :: ys -> helper xs (Operand 0 :: ys)
+        | Operator operator :: _, _ -> Error(OperatorMissingOperands operator)
+        | _ -> Error DoesNotReduceToSingleNumber
+
     helper expressions []
+
+let private tokenizerErrorToParserError error =
+    match error with
+    | TokenizerError.InvalidToken token -> InvalidToken token
 
 let parse str =
     str
     |> tokenize
-    |> Option.map parseEquation
-    |> Option.bind validateEquation
+    |> Result.map parseEquation
+    |> Result.mapError tokenizerErrorToParserError
+    |> Result.bind validateEquation

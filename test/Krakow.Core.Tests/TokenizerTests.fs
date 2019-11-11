@@ -5,29 +5,30 @@ open FsUnit.Xunit
 
 open Krakow.Core.Tokenizer
 
-[<Fact>]
-let ``Tokenize empty equation`` =
-    tokenize "" |> should equal (Some [])
+[<Theory>]
+[<InlineData("")>]
+[<InlineData("  ")>]
+[<InlineData("\t\n")>]
+[<InlineData("\r\n")>]
+let ``Tokenize empty equation`` equation =
+    tokenize equation = Ok (Tokens []) |> should be True
 
 [<Theory>]
-[<InlineData("^")>]
-[<InlineData("-1")>]
-[<InlineData("1.")>]
-[<InlineData("A")>]
-[<InlineData("Z")>]
-let ``Tokenize invalid equation`` equation =
-    tokenize equation |> should equal None
+[<InlineData("^", "^")>]
+[<InlineData("1 .", ".")>]
+[<InlineData("1 2 + Z", "Z")>]
+let ``Tokenize invalid token`` equation invalidToken =
+    tokenize equation = (Error (InvalidToken invalidToken)) |> should be True
 
 [<Fact>]
 let ``Tokenize minimal equation`` () =
-    tokenize "5" |> should equal (Some [Token.Number 5])
-    
+    tokenize "5" = (Ok (Tokens [Number 5])) |> should be True
     
 [<Fact>]
 let ``Tokenize simple equation`` () =
-    tokenize "5 3 +" |> should equal (Some [Token.Number 5; Token.Number 3; Token.Plus])
+    tokenize "5 3 +" = (Ok (Tokens [Number 5; Number 3; Plus])) |> should be True
 
 [<Fact>]
 let ``Tokenize complex equation`` () =
-    let expected = [Token.Number 1; Token.Number 3; Token.Plus; Token.Number 54; Token.Slash; Token.Number 8; Token.Asterisk; Token.Number 4; Token.Minus]
-    tokenize "1 3 + 54 / 8 * 4 -" |> should equal (Some expected)
+    let expected = Ok(Tokens [Number 1; Number 3; Plus; Number 54; Slash; Number 8; Asterisk; Number 4; Minus])
+    tokenize "1 3 + 54 / 8 * 4 -" = expected |> should be True
