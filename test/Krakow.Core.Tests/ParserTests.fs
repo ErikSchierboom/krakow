@@ -11,19 +11,22 @@ open Krakow.Core.Parser
 [<InlineData("\t\n")>]
 [<InlineData("\r\n")>]
 let ``Parse empty equation`` equation =
-    parse equation = (Error EmptyEquation) |> should be True
+    parse equation = (Error Empty) |> should be True
 
-[<Fact>]
-let ``Parse equation with invalid token`` =
-    parse "1 a" = (Error (InvalidToken "a")) |> should be True
+[<Theory>]
+[<InlineData("^", "^")>]
+[<InlineData("1 .", ".")>]
+[<InlineData("1 2 + Z", "Z")>]
+let ``Parse equation with invalid token`` equation invalidToken =
+    parse equation = (Error (Invalid invalidToken)) |> should be True
 
 [<Fact>]
 let ``Parse equation that does not reduce to single number invalid token`` =
-    parse "1 2" = (Error DoesNotReduceToSingleNumber) |> should be True
+    parse "1 2" = (Error Unbalanced) |> should be True
 
 [<Fact>]
 let ``Parse equation with operator missing operand`` =
-    parse "1 +" = (Error (OperatorMissingOperands (Operator.Add))) |> should be True
+    parse "1 +" = (Error Unbalanced) |> should be True
 
 [<Theory>]
 [<InlineData("0", 0)>]

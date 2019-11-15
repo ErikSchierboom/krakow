@@ -16,11 +16,10 @@ let private printOutcome outcome =
     printfn "Outcome: %A" outcome
 
 let private parserErrorMessage error = 
-    match error with 
-    | InvalidToken token -> sprintf "Invalid token: %s" token
-    | EmptyEquation -> "Empty equation"
-    | DoesNotReduceToSingleNumber -> "Equation does not evaluate to single number"
-    | OperatorMissingOperands operator -> sprintf "Operator %A requires more numbers" operator
+    match error with
+    | Empty -> "Empty equation"
+    | Invalid token -> sprintf "Invalid token: %s" token
+    | Unbalanced -> "Equation is unbalanced"
 
 let private printError error =
     let errorMessage = parserErrorMessage error

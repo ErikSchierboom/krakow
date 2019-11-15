@@ -14,19 +14,19 @@ module Text =
     [<InlineData("\t\n")>]
     [<InlineData("\r\n")>]
     let ``Convert empty equation`` equation =
-        parse equation |> Result.map equationToWebAssemblyText = (Error EmptyEquation) |> should be True
+        parse equation |> Result.map equationToWebAssemblyText = (Error Empty) |> should be True
 
     [<Fact>]
     let ``Convert equation with invalid token`` =
-        parse "1 a" |> Result.map equationToWebAssemblyText = (Error (InvalidToken "a")) |> should be True
+        parse "1 a" |> Result.map equationToWebAssemblyText = (Error (Invalid "a")) |> should be True
 
     [<Fact>]
     let ``Convert equation that does not reduce to single number invalid token`` =
-        parse "1 2" |> Result.map equationToWebAssemblyText = (Error DoesNotReduceToSingleNumber) |> should be True
+        parse "1 2" |> Result.map equationToWebAssemblyText = (Error Unbalanced) |> should be True
 
     [<Fact>]
     let ``Convert equation with operator missing operand`` =
-        parse "1 +" |> Result.map equationToWebAssemblyText = (Error (OperatorMissingOperands (Operator.Add))) |> should be True
+        parse "1 +" |> Result.map equationToWebAssemblyText = (Error Unbalanced) |> should be True
 
     [<Fact>]
     let ``Convert single operand equation to WebAssembly text`` () =
@@ -72,19 +72,19 @@ module Binary =
 
     [<Fact>]
     let ``Convert empty equation`` =
-        parse "" |> Result.map equationToWebAssemblyBinary = (Error EmptyEquation) |> should be True
+        parse "" |> Result.map equationToWebAssemblyBinary = (Error Empty) |> should be True
 
     [<Fact>]
     let ``Convert equation with invalid token`` =
-        parse "1 a" |> Result.map equationToWebAssemblyBinary = (Error (InvalidToken "a")) |> should be True
+        parse "1 a" |> Result.map equationToWebAssemblyBinary = (Error (Invalid "a")) |> should be True
 
     [<Fact>]
     let ``Convert equation that does not reduce to single number invalid token`` =
-        parse "1 2" |> Result.map equationToWebAssemblyBinary = (Error DoesNotReduceToSingleNumber) |> should be True
+        parse "1 2" |> Result.map equationToWebAssemblyBinary = (Error Unbalanced) |> should be True
 
     [<Fact>]
     let ``Convert equation with operator missing operand`` =
-        parse "1 +" |> Result.map equationToWebAssemblyBinary = (Error (OperatorMissingOperands (Operator.Add))) |> should be True
+        parse "1 +" |> Result.map equationToWebAssemblyBinary = (Error Unbalanced) |> should be True
 
     [<Fact>]
     let ``Convert single operand equation to WebAssembly binary`` () =

@@ -16,4 +16,6 @@ let private evaluateEquation (Equation expressions) =
     |> List.fold evaluateExpression []
     |> List.head
 
-let evaluate str = parse str |> Result.map evaluateEquation
+let evaluate str =
+    parse str
+    |> Result.map evaluateEquation

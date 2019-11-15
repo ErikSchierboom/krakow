@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="TokenizerTests.fs" />
     <Compile Include="ParserTests.fs" />
     <Compile Include="EvaluatorTests.fs" />
     <Compile Include="WebAssemblyTests.fs" />

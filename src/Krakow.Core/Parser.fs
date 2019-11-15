@@ -1,7 +1,12 @@
 module Krakow.Core.Parser
 
-open Tokenizer
+open Krakow.Core.Helpers
 
+type EquationError =
+    | Empty
+    | Invalid of string
+    | Unbalanced
+    
 type Operator =
     | Add
     | Sub
@@ -14,44 +19,34 @@ type Expression =
 
 type Equation = Equation of Expression list
 
-type ParserError =
-    | InvalidToken of string
-    | EmptyEquation
-    | DoesNotReduceToSingleNumber
-    | OperatorMissingOperands of Operator
-
-let private parseExpression token =
-    match token with
-    | Plus -> Operator Add
-    | Minus -> Operator Sub
-    | Asterisk -> Operator Mul
-    | Slash -> Operator Div
-    | Number i -> Operand i
-
-let private parseEquation (Tokens tokens) =
-    tokens
+let private parseExpression word =
+    match word with
+    | "+" -> Ok (Operator Add)
+    | "-" -> Ok (Operator Sub)
+    | "*" -> Ok (Operator Mul)
+    | "/" -> Ok (Operator Div)
+    | Int i -> Ok (Operand i)
+    | _ -> Error (Invalid word)
+    
+let private parseEquation str =
+    str
+    |> String.words
     |> List.map parseExpression
-    |> Equation
-
+    |> Result.ofList
+    |> Result.map Equation
+    
 let private validateEquation (Equation expressions) =
-    let rec helper unprocessedExpressions stack =
-        match unprocessedExpressions, stack with
-        | [], [] -> Error(EmptyEquation)
+    let rec helper remainder stack =
+        match remainder, stack with
+        | [], [] -> Error Empty
         | [], [ Operand _ ] -> Ok(Equation expressions)
         | Operand i :: xs, _ -> helper xs (Operand i :: stack)
         | Operator _ :: xs, Operand _ :: Operand _ :: ys -> helper xs (Operand 0 :: ys)
-        | Operator operator :: _, _ -> Error(OperatorMissingOperands operator)
-        | _ -> Error DoesNotReduceToSingleNumber
+        | _ -> Error Unbalanced
 
     helper expressions []
-
-let private tokenizerErrorToParserError error =
-    match error with
-    | TokenizerError.InvalidToken token -> InvalidToken token
-
+    
 let parse str =
     str
-    |> tokenize
-    |> Result.map parseEquation
-    |> Result.mapError tokenizerErrorToParserError
+    |> parseEquation
     |> Result.bind validateEquation
