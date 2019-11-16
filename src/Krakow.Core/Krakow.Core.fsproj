@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Tokenizer.fs" />
+    <Compile Include="Helpers.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="WebAssembly.fs" />
     <Compile Include="Evaluator.fs" />
