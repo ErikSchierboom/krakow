@@ -11,8 +11,8 @@ open Krakow.Website.Model
 open Krakow.Website.Interop
 
 let private equationEvaluatedSuccessfully model equation =
-    let wat = equationToWebAssemblyText equation
-    let wasm = equationToWebAssemblyBinary equation
+    let (WebAssemblyText(wat)) = equationToWebAssemblyText equation
+    let (WebAssemblyBinary(wasm)) = equationToWebAssemblyBinary equation
     let wasmByteArray = Uint8Array.from wasm
 
     let onSuccess wa =

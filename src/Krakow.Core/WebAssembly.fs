@@ -36,6 +36,8 @@ let private equationToWebAssemblyModule equation =
             Name = "evaluate" } }
 
 module Text =
+    type WebAssemblyText = WebAssemblyText of string
+
     let private outputValueType valueType =
         match valueType with
         | I32 -> "i32"
@@ -69,8 +71,11 @@ module Text =
         equation
         |> equationToWebAssemblyModule
         |> outputModule
+        |> WebAssemblyText
 
 module Binary =
+    type WebAssemblyBinary = WebAssemblyBinary of int list
+
     type Section =
         | Type
         | Function
@@ -194,3 +199,4 @@ module Binary =
         equation
         |> equationToWebAssemblyModule
         |> outputModule
+        |> WebAssemblyBinary
