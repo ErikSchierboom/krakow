@@ -6,7 +6,7 @@ type Evaluation =
       wat: string }
 
 type EvaluationError =
-    | InvalidWebAssembly
+    | WebAssemblyException of exn
     | EmptyEquation
     | InvalidEquation of string
     | UnbalancedEquation

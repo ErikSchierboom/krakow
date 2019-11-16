@@ -24,7 +24,7 @@ let evaluationResult model map =
     | Some(Ok evaluation) -> map evaluation
     | Some(Error error) ->
         match error with
-        | InvalidWebAssembly -> "Invalid WebAssembly binary"
+        | WebAssemblyException ex -> sprintf "WebAssembly error: %s" ex.Message
         | EmptyEquation -> "Empty equation"
         | InvalidEquation token -> sprintf "Invalid token: %s" token
         | UnbalancedEquation -> "Equation is unbalanced"

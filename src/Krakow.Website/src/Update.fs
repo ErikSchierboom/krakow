@@ -21,7 +21,7 @@ let private equationEvaluatedSuccessfully model equation =
                wasm = wasm
                wat = wat })
 
-    let onError _ = EquationEvaluatedWithError InvalidWebAssembly
+    let onError ex = EquationEvaluatedWithError(WebAssemblyException ex)
     let cmd = Cmd.OfPromise.either WebAssembly.instantiate wasmByteArray onSuccess onError
 
     model, cmd
