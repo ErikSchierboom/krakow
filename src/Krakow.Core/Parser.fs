@@ -12,12 +12,28 @@ type Operator =
     | Sub
     | Mul
     | Div
+    override self.ToString() =
+        match self with
+        | Add -> "+"
+        | Sub -> "-"
+        | Mul -> "*"
+        | Div -> "/"
 
 type Expression =
     | Operator of Operator
     | Operand of int
+    override self.ToString() =
+        match self with
+        | Operator operator -> string operator
+        | Operand operand -> string operand
 
-type Equation = Equation of Expression list
+type Equation =
+    | Equation of Expression list
+    override self.ToString() =
+        let (Equation expressions) = self
+        expressions
+        |> List.map string
+        |> String.concat " "
 
 let private parseExpression word =
     match word with
