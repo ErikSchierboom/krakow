@@ -6,6 +6,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Krakow.Core", "src\Krakow.C
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Krakow.Core.Tests", "test\Krakow.Core.Tests\Krakow.Core.Tests.fsproj", "{91D8D2E0-7F92-461E-8284-182DD5EEB113}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Krakow.Website", "src\Krakow.Website\src\Krakow.Website.fsproj", "{64C0D6A1-93CD-41B2-9656-28FD3DC28A10}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{91D8D2E0-7F92-461E-8284-182DD5EEB113}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91D8D2E0-7F92-461E-8284-182DD5EEB113}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91D8D2E0-7F92-461E-8284-182DD5EEB113}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64C0D6A1-93CD-41B2-9656-28FD3DC28A10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64C0D6A1-93CD-41B2-9656-28FD3DC28A10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64C0D6A1-93CD-41B2-9656-28FD3DC28A10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64C0D6A1-93CD-41B2-9656-28FD3DC28A10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
