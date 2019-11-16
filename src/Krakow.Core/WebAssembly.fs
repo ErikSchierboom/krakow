@@ -5,11 +5,11 @@ open Krakow.Core.Parser
 type ValueType = I32
 
 type Instruction =
-    | I32_Const of int
-    | I32_Add
-    | I32_Sub
-    | I32_Mul
-    | I32_Div
+    | I32Const of int
+    | I32Add
+    | I32Sub
+    | I32Mul
+    | I32Div
 
 type Function =
     { Result: ValueType
@@ -21,11 +21,11 @@ type Module =
 
 let private expressionToWebAssemblyInstruction expression =
     match expression with
-    | Operand i -> I32_Const i
-    | Operator Add -> I32_Add
-    | Operator Sub -> I32_Sub
-    | Operator Mul -> I32_Mul
-    | Operator Div -> I32_Div
+    | Operand i -> I32Const i
+    | Operator Add -> I32Add
+    | Operator Sub -> I32Sub
+    | Operator Mul -> I32Mul
+    | Operator Div -> I32Div
 
 let private equationToWebAssemblyCode (Equation expressions) = List.map expressionToWebAssemblyInstruction expressions
 
@@ -44,11 +44,11 @@ module Text =
 
     let private outputInstruction instruction =
         match instruction with
-        | I32_Const i -> sprintf "i32.const %i" i
-        | I32_Add -> "i32.add"
-        | I32_Sub -> "i32.sub"
-        | I32_Mul -> "i32.mul"
-        | I32_Div -> "i32.div_32"
+        | I32Const i -> sprintf "i32.const %i" i
+        | I32Add -> "i32.add"
+        | I32Sub -> "i32.sub"
+        | I32Mul -> "i32.mul"
+        | I32Div -> "i32.div_32"
 
     let private outputBody instructions =
         instructions
@@ -120,10 +120,10 @@ module Binary =
 
     let private outputSectionIndex section =
         match section with
-        | Section.Type -> outputInteger 0x01
-        | Section.Function -> outputInteger 0x03
-        | Section.Export -> outputInteger 0x07
-        | Section.Code -> outputInteger 0x0a
+        | Type -> outputInteger 0x01
+        | Function -> outputInteger 0x03
+        | Export -> outputInteger 0x07
+        | Code -> outputInteger 0x0a
 
     let private outputSection section bytes = outputSectionIndex section @ outputVector bytes
 
@@ -159,15 +159,15 @@ module Binary =
         let exportType = outputExportType FunctionExport
         let exportFunctionIndex = outputInteger 0x00
 
-        exportsCount @ exportName @ [ exportType ] @ exportFunctionIndex |> outputSection Section.Export
+        exportsCount @ exportName @ [ exportType ] @ exportFunctionIndex |> outputSection Export
 
     let private outputInstruction instruction =
         match instruction with
-        | I32_Const i -> [ 0x41; i ]
-        | I32_Add -> [ 0x6a ]
-        | I32_Sub -> [ 0x6b ]
-        | I32_Mul -> [ 0x6c ]
-        | I32_Div -> [ 0x6e ]
+        | I32Const i -> [ 0x41; i ]
+        | I32Add -> [ 0x6a ]
+        | I32Sub -> [ 0x6b ]
+        | I32Mul -> [ 0x6c ]
+        | I32Div -> [ 0x6e ]
 
     let private outputBody instructions =
         let localDeclarationsCount = outputInteger 0x00
@@ -180,7 +180,7 @@ module Binary =
         let functionCount = outputInteger 0x01
         let body = outputBody function'.Body
 
-        functionCount @ body |> outputSection Section.Code
+        functionCount @ body |> outputSection Code
 
     let private outputModule module' =
         let typeSection = outputTypeSection module'.Function
