@@ -1,7 +1,7 @@
 open System
 
 open Krakow.Core.Evaluator
-open Krakow.Core.Parser
+open Krakow.Core.Domain
 
 let private printInstructions() =
     printfn "Please enter an equation and evaluate it by pressing enter..."

@@ -4,26 +4,24 @@ open Elmish
 
 open Fable.Core.JsInterop
 
-open Krakow.Core.Parser
-open Krakow.Core.WebAssembly.Text
-open Krakow.Core.WebAssembly.Binary
+open Krakow.Core.Domain
+open Krakow.Core.WebAssembly
 open Krakow.Website.Model
 open Krakow.Website.Interop
 
-let private equationEvaluatedSuccessfully model equation =
-    let (WebAssemblyText(wat)) = equationToWebAssemblyText equation
-    let (WebAssemblyBinary(wasm)) = equationToWebAssemblyBinary equation
-    let wasmByteArray = Uint8Array.from wasm
-
-    let onSuccess wa =
+let private equationEvaluatedSuccessfully model webAssembly =
+    let (WebAssemblyText(wat)) = webAssembly.Text
+    let (WebAssemblyBinary(wasm)) = webAssembly.Binary
+    
+    let onSuccess webAssemblyInBrowser =
         EquationEvaluatedSuccessfully
-            ({ result = wa.instance.exports?evaluate ()
+            ({ result = webAssemblyInBrowser.instance.exports?evaluate ()
                wasm = wasm
                wat = wat })
 
     let onError ex = EquationEvaluatedWithError(WebAssemblyException ex)
-    let cmd = Cmd.OfPromise.either WebAssembly.instantiate wasmByteArray onSuccess onError
 
+    let cmd = Cmd.OfPromise.either WebAssembly.instantiate (Uint8Array.from wasm) onSuccess onError
     model, cmd
 
 let private equationEvaluatedWithError model error =
@@ -36,8 +34,8 @@ let private equationEvaluatedWithError model error =
     model, Cmd.ofMsg (EquationEvaluatedWithError evaluationError)
 
 let private evaluate model =
-    match parse model.equation with
-    | Ok evaluation -> equationEvaluatedSuccessfully model evaluation
+    match convert model.equation with
+    | Ok webAssembly -> equationEvaluatedSuccessfully model webAssembly
     | Error error -> equationEvaluatedWithError model error
 
 let init() =

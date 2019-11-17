@@ -1,5 +1,6 @@
 module Krakow.Core.Evaluator
 
+open Krakow.Core.Domain
 open Krakow.Core.Parser
 
 let private evaluateExpression stack expression =

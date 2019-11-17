@@ -1,43 +1,34 @@
 module Krakow.Core.WebAssembly
 
+open Krakow.Core.Domain
 open Krakow.Core.Parser
 
-type ValueType = I32
+type WebAssemblyText = WebAssemblyText of string
 
-type Instruction =
+type WebAssemblyBinary = WebAssemblyBinary of int list
+
+type WebAssembly =
+    { Text: WebAssemblyText
+      Binary: WebAssemblyBinary }
+    
+type WebAssemblyValueType = I32
+
+type WebAssemblyInstruction =
     | I32Const of int
     | I32Add
     | I32Sub
     | I32Mul
     | I32Div
 
-type Function =
-    { Result: ValueType
-      Body: Instruction list
+type WebAssemblyFunction =
+    { Result: WebAssemblyValueType
+      Body: WebAssemblyInstruction list
       Name: string }
 
-type Module =
-    { Function: Function }
-
-let private expressionToWebAssemblyInstruction expression =
-    match expression with
-    | OperandExpression (Operand i) -> I32Const i
-    | OperatorExpression Add -> I32Add
-    | OperatorExpression Sub -> I32Sub
-    | OperatorExpression Mul -> I32Mul
-    | OperatorExpression Div -> I32Div
-
-let private equationToWebAssemblyCode (Equation expressions) = List.map expressionToWebAssemblyInstruction expressions
-
-let private equationToWebAssemblyModule equation =
-    { Function =
-          { Result = I32
-            Body = equationToWebAssemblyCode equation
-            Name = "evaluate" } }
+type WebAssemblyModule =
+    { Function: WebAssemblyFunction }
 
 module Text =
-    type WebAssemblyText = WebAssemblyText of string
-
     let private outputValueType valueType =
         match valueType with
         | I32 -> "i32"
@@ -65,17 +56,12 @@ module Text =
         let body = outputBody function'.Body
         sprintf "(func %s %s %s)" export result body
 
-    let private outputModule module' = sprintf "(module %s)" (outputFunction module'.Function)
-
-    let equationToWebAssemblyText equation =
-        equation
-        |> equationToWebAssemblyModule
-        |> outputModule
+    let outputModule module' =
+        outputFunction module'.Function
+        |> sprintf "(module %s)"
         |> WebAssemblyText
 
 module Binary =
-    type WebAssemblyBinary = WebAssemblyBinary of int list
-
     type Section =
         | Type
         | Function
@@ -187,16 +173,37 @@ module Binary =
 
         functionCount @ body |> outputSection Code
 
-    let private outputModule module' =
+    let outputModule module' =
         let typeSection = outputTypeSection module'.Function
         let functionSection = outputFunctionSection
         let exportSection = outputExportSection module'.Function
         let codeSection = outputCodeSection module'.Function
 
         outputMagicHeader @ outputVersion @ typeSection @ functionSection @ exportSection @ codeSection
-
-    let equationToWebAssemblyBinary equation =
-        equation
-        |> equationToWebAssemblyModule
-        |> outputModule
         |> WebAssemblyBinary
+
+let private expressionToWebAssemblyInstruction expression =
+    match expression with
+    | OperandExpression (Operand i) -> I32Const i
+    | OperatorExpression Add -> I32Add
+    | OperatorExpression Sub -> I32Sub
+    | OperatorExpression Mul -> I32Mul
+    | OperatorExpression Div -> I32Div
+
+let private equationToWebAssemblyCode (Equation expressions) = List.map expressionToWebAssemblyInstruction expressions
+
+let private equationToWebAssemblyModule equation =
+    { Function =
+        { Result = I32
+          Body = equationToWebAssemblyCode equation
+          Name = "evaluate" } }
+    
+let equationToWebAssembly equation =
+    let webAssemblyModule = equationToWebAssemblyModule equation
+    
+    { Text = Text.outputModule webAssemblyModule
+      Binary = Binary.outputModule webAssemblyModule }
+    
+let convert str =
+    parse str
+    |> Result.map equationToWebAssembly
