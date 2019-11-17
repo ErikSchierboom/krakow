@@ -21,11 +21,11 @@ type Module =
 
 let private expressionToWebAssemblyInstruction expression =
     match expression with
-    | Operand i -> I32Const i
-    | Operator Add -> I32Add
-    | Operator Sub -> I32Sub
-    | Operator Mul -> I32Mul
-    | Operator Div -> I32Div
+    | OperandExpression (Operand i) -> I32Const i
+    | OperatorExpression Add -> I32Add
+    | OperatorExpression Sub -> I32Sub
+    | OperatorExpression Mul -> I32Mul
+    | OperatorExpression Div -> I32Div
 
 let private equationToWebAssemblyCode (Equation expressions) = List.map expressionToWebAssemblyInstruction expressions
 

@@ -18,14 +18,12 @@ type Operator =
         | Sub -> "-"
         | Mul -> "*"
         | Div -> "/"
+        
+type Operand = Operand of int
 
 type Expression =
-    | Operator of Operator
-    | Operand of int
-    override self.ToString() =
-        match self with
-        | Operator operator -> string operator
-        | Operand operand -> string operand
+    | OperatorExpression of Operator
+    | OperandExpression of Operand
 
 type Equation =
     | Equation of Expression list
@@ -37,11 +35,11 @@ type Equation =
 
 let private parseExpression word =
     match word with
-    | "+" -> Ok (Operator Add)
-    | "-" -> Ok (Operator Sub)
-    | "*" -> Ok (Operator Mul)
-    | "/" -> Ok (Operator Div)
-    | Int i -> Ok (Operand i)
+    | "+" -> Ok (OperatorExpression Add)
+    | "-" -> Ok (OperatorExpression Sub)
+    | "*" -> Ok (OperatorExpression Mul)
+    | "/" -> Ok (OperatorExpression Div)
+    | Int i -> Ok (OperandExpression (Operand i))
     | _ -> Error (Invalid word)
     
 let private parseEquation str =
@@ -55,9 +53,9 @@ let private validateEquation (Equation expressions) =
     let rec helper remainder stack =
         match remainder, stack with
         | [], [] -> Error Empty
-        | [], [ Operand _ ] -> Ok(Equation expressions)
-        | Operand i :: xs, _ -> helper xs (Operand i :: stack)
-        | Operator _ :: xs, Operand _ :: Operand _ :: ys -> helper xs (Operand 0 :: ys)
+        | [], [ OperandExpression _ ] -> Ok(Equation expressions)
+        | OperandExpression i :: xs, _ -> helper xs (OperandExpression i :: stack)
+        | OperatorExpression i :: xs, OperandExpression _ :: OperandExpression _ :: ys -> helper xs (OperandExpression (Operand 0) :: ys)
         | _ -> Error Unbalanced
 
     helper expressions []
