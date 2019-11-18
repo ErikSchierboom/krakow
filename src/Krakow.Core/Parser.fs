@@ -1,52 +1,32 @@
 module Krakow.Core.Parser
 
 open Krakow.Core.Helpers
-
-type EquationError =
-    | Empty
-    | Invalid of string
-    | Unbalanced
-    
-type Operator =
-    | Add
-    | Sub
-    | Mul
-    | Div
-
-type Expression =
-    | Operator of Operator
-    | Operand of int
-
-type Equation = Equation of Expression list
+open Krakow.Core.Domain
 
 let private parseExpression word =
     match word with
-    | "+" -> Ok (Operator Add)
-    | "-" -> Ok (Operator Sub)
-    | "*" -> Ok (Operator Mul)
-    | "/" -> Ok (Operator Div)
-    | Int i -> Ok (Operand i)
+    | "+" -> Ok (OperatorExpression Add)
+    | "-" -> Ok (OperatorExpression Sub)
+    | "*" -> Ok (OperatorExpression Mul)
+    | "/" -> Ok (OperatorExpression Div)
+    | Int i -> Ok (OperandExpression (Operand i))
     | _ -> Error (Invalid word)
     
-let private parseEquation str =
-    str
-    |> String.words
-    |> List.map parseExpression
-    |> Result.ofList
-    |> Result.map Equation
-    
-let private validateEquation (Equation expressions) =
+let private validate expressions =
     let rec helper remainder stack =
         match remainder, stack with
         | [], [] -> Error Empty
-        | [], [ Operand _ ] -> Ok(Equation expressions)
-        | Operand i :: xs, _ -> helper xs (Operand i :: stack)
-        | Operator _ :: xs, Operand _ :: Operand _ :: ys -> helper xs (Operand 0 :: ys)
+        | [], [ OperandExpression _ ] -> Ok(expressions)
+        | OperandExpression i :: xs, _ -> helper xs (OperandExpression i :: stack)
+        | OperatorExpression i :: xs, OperandExpression _ :: OperandExpression _ :: ys -> helper xs (OperandExpression (Operand 0) :: ys)
         | _ -> Error Unbalanced
 
     helper expressions []
     
 let parse str =
     str
-    |> parseEquation
-    |> Result.bind validateEquation
+    |> String.words
+    |> List.map parseExpression
+    |> Result.ofList
+    |> Result.bind validate
+    |> Result.map Equation

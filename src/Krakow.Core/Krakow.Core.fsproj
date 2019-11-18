@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <Compile Include="Helpers.fs" />
+    <Compile Include="Domain.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="WebAssembly.fs" />
     <Compile Include="Evaluator.fs" />
