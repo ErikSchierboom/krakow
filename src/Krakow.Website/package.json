@@ -3,7 +3,7 @@
   "sideEffects": false,
   "scripts": {
     "start": "webpack-dev-server",
-    "build": "webpack",
+    "build": "webpack --mode=production",
     "deploy": "firebase deploy"
   },
   "dependencies": {

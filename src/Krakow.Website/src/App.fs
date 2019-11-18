@@ -3,11 +3,12 @@ module Krakow.Website.App
 open Elmish
 open Elmish.React
 
-open Krakow.Website.Model
-open Krakow.Website.Update
+open Krakow.Website.State
 open Krakow.Website.View
 
+let placeHolderId = "app"
+
 Program.mkProgram init update view
-|> Program.withReactSynchronous "app"
+|> Program.withReactSynchronous placeHolderId
 |> Program.withConsoleTrace
 |> Program.run
