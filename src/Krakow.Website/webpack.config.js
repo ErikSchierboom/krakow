@@ -1,16 +1,20 @@
 const path = require("path");
 
-module.exports = (_, argv) => {
+module.exports = function(_, argv) {
+  const mode = argv.mode || "development";
+  const isProduction = mode === "production";
+
   return {
-    mode: argv.mode,
+    mode: mode,
+    devtool: isProduction ? false : "eval-source-map",
     entry: "./src/Krakow.Website.fsproj",
     output: {
-      path: path.join(__dirname, "./public"),
-      filename: "bundle.js"
+      filename: "bundle.js",
+      path: path.join(__dirname, "./public")
     },
     devServer: {
       contentBase: "./public",
-      port: 8888
+      port: 8080
     },
     module: {
       rules: [
