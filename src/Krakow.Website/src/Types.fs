@@ -1,4 +1,4 @@
-module Krakow.Website.Model
+module Krakow.Website.Types
 
 open Elmish
 
@@ -22,7 +22,3 @@ type Msg =
     | EvaluateEquation
     | EquationEvaluatedSuccessfully of Evaluation
     | EquationEvaluatedWithError of EvaluationError
-
-let init() =
-    { evaluation = None
-      equation = "" }, Cmd.none

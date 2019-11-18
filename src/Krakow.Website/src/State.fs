@@ -1,4 +1,4 @@
-module Krakow.Website.Update
+module Krakow.Website.State
 
 open Elmish
 open Fable.Core.JsInterop
@@ -7,7 +7,7 @@ open Krakow.Core.Domain
 open Krakow.Core.WebAssembly
 
 open Krakow.Website.Interop
-open Krakow.Website.Model
+open Krakow.Website.Types
 
 let private equationEvaluatedSuccessfully model webAssembly =
     let (WebAssemblyText(wat)) = webAssembly.Text
@@ -44,3 +44,7 @@ let update msg model =
     | EvaluateEquation -> evaluate model
     | EquationEvaluatedSuccessfully evaluation -> { model with evaluation = Some(Ok evaluation) }, Cmd.none
     | EquationEvaluatedWithError error -> { model with evaluation = Some(Error error) }, Cmd.none
+
+let init() =
+    { evaluation = None
+      equation = "" }, Cmd.none

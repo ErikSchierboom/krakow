@@ -3,7 +3,7 @@ module Krakow.Website.View
 open Fable.React
 open Fable.React.Props
 
-open Krakow.Website.Model
+open Krakow.Website.Types
 
 let private byteToHex (b: int) = b.ToString("X2")
 
