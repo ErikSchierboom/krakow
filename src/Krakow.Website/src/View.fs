@@ -4,8 +4,28 @@ open Fable.React
 open Fable.React.Props
 
 open Krakow.Website.Types
+open Krakow.Website.Helpers
 
-let private byteToHex (b: int) = b.ToString("X2")
+let private row children = div [ Class "row" ] [ div [ Class "col-sm-offset-3 col-sm-6" ] children ]
+
+let private rowWithHeader text content =
+    let header = h2 [] [ str text ]
+    row [ header; content ]
+
+let private noContent = row []
+
+let private equationInput equation dispatch =
+    let content =
+        form [ OnSubmit(fun ev -> ev.preventDefault()) ]
+            [ label [ HtmlFor "equation" ] [ str "Equation" ]
+              input
+                  [ Placeholder "Enter equation..."
+                    Name "equation"
+                    Value equation
+                    OnChange(fun ev -> dispatch (UpdateEquation ev.Value)) ]
+              button [ OnClick(fun _ -> dispatch EvaluateEquation) ] [ str "Evaluate" ] ]
+
+    rowWithHeader "Equation input" content
 
 let private evaluationErrorText error =
     match error with
@@ -14,60 +34,48 @@ let private evaluationErrorText error =
     | InvalidEquation token -> sprintf "Invalid token: %s" token
     | UnbalancedEquation -> "Equation is unbalanced"
 
-let private evaluationError model =
-    let displayOption =
-        match model.evaluation with
-        | Some(Error _) -> DisplayOptions.Block
-        | _ -> DisplayOptions.None
+let private equationOutputContent resultClass text =
+    p []
+        [ mark
+            [ Name "result"
+              Class resultClass ] [ str text ] ]
 
-    let text =
-        match model.evaluation with
-        | Some(Error error) -> evaluationErrorText error
-        | _ -> ""
+let private equationOutput evaluation =
+    let content =
+        match evaluation with
+        | Ok evaluation -> equationOutputContent "tertiary" (string evaluation.result)
+        | Error error -> equationOutputContent "secondary" (evaluationErrorText error)
 
-    mark
-        [ Class "secondary"
-          Style [ Display displayOption ] ] [ str text ]
+    rowWithHeader "Equation output" content
 
-let private equationForm model dispatch =
-    div [ Class "col-sm-4" ]
-        [ form [ OnSubmit(fun ev -> ev.preventDefault()) ]
-              [ fieldset []
-                    [ legend [] [ str "Reverse Polish Notation" ]
-                      label [ HtmlFor "equation" ] [ str "Equation" ]
-                      input
-                          [ Placeholder "Enter equation..."
-                            Value model.equation
-                            OnChange(fun ev -> dispatch (UpdateEquation ev.Value)) ]
-                      button [ OnClick(fun _ -> dispatch EvaluateEquation) ] [ str "Evaluate" ]
-                      evaluationError model ] ] ]
+let private webAssemblyText evaluation =
+    match evaluation with
+    | Ok evaluation ->
+        let content = pre [] [ str evaluation.wat ]
 
-let private outputSection header text =
-    [ h3 [ Class "doc" ] [ str header ]
-      p [ Class "doc" ] [ str text ] ]
+        rowWithHeader "WebAssembly Text" content
+    | _ -> noContent
 
-let private resultSection evaluation =
-    let text = string evaluation.result
-    outputSection "Result" text
+let private webAssemblyBinary evaluation =
+    match evaluation with
+    | Ok evaluation ->
+        let bytes =
+            evaluation.wasm
+            |> List.map (fun b -> b.ToString("X2"))
+            |> String.concat " "
 
-let private watSection evaluation = outputSection "WAT" evaluation.wat
+        let content = pre [] [ str bytes ]
 
-let private wasmSection evaluation =
-    let text =
-        evaluation.wasm
-        |> List.map byteToHex
-        |> String.concat " "
-    outputSection "WASM" text
+        rowWithHeader "WebAssembly Binary" content
+    | _ -> noContent
 
-let private resultSections evaluation = resultSection evaluation @ watSection evaluation @ wasmSection evaluation
-
-let private results model =
+let rows model dispatch =
     match model.evaluation with
-    | Some(Ok evaluation) -> div [ Class "col-sm-8" ] (resultSections evaluation)
-    | _ -> div [] []
+    | Some evaluation ->
+        [ equationInput model.equation dispatch
+          equationOutput evaluation
+          webAssemblyText evaluation
+          webAssemblyBinary evaluation ]
+    | None -> [ equationInput model.equation dispatch ]
 
-let view model dispatch =
-    div [ Class "container" ]
-        [ div [ Class "row" ]
-              [ equationForm model dispatch
-                results model ] ]
+let view model dispatch = div [ Class "container" ] (rows model dispatch)

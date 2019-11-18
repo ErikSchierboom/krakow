@@ -5,6 +5,7 @@
 
   <ItemGroup>
     <Compile Include="Interop.fs" />
+    <Compile Include="Helpers.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="State.fs" />
     <Compile Include="View.fs" />
