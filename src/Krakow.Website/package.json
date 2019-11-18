@@ -4,7 +4,7 @@
   "scripts": {
     "start": "webpack-dev-server",
     "build": "webpack --mode=production",
-    "deploy": "npm run build && firebase deploy"
+    "deploy": "firebase deploy"
   },
   "dependencies": {
     "@babel/core": "^7.7.2",
