@@ -62,11 +62,11 @@ let private evaluate model =
     | Ok webAssembly -> equationEvaluatedSuccessfully model webAssembly
     | Error error -> equationEvaluatedWithError model error
 
-let init() =
+let private init() =
     { evaluation = None
       equation = "" }, Cmd.none
 
-let update msg model =
+let private update msg model =
     match msg with
     | UpdateEquation newEquation -> { model with equation = newEquation }, Cmd.none
     | EvaluateEquation -> evaluate model
@@ -134,7 +134,7 @@ let private results model =
     | Some(Ok evaluation) -> div [ Class "col-sm-8" ] (resultSections evaluation)
     | _ -> div [] []
 
-let view model dispatch =
+let private view model dispatch =
     div [ Class "container" ]
         [ div [ Class "row" ]
               [ equationForm model dispatch
