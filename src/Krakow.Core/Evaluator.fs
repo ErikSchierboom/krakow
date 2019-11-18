@@ -5,7 +5,7 @@ open Krakow.Core.Parser
 
 let private evaluateExpression stack expression =
     match expression, stack with
-    | OperandExpression (Operand operand), _ -> operand :: stack
+    | OperandExpression(Operand operand), _ -> operand :: stack
     | OperatorExpression Add, x :: y :: xs -> y + x :: xs
     | OperatorExpression Sub, x :: y :: xs -> y - x :: xs
     | OperatorExpression Mul, x :: y :: xs -> y * x :: xs
@@ -17,6 +17,4 @@ let private evaluateEquation (Equation expressions) =
     |> List.fold evaluateExpression []
     |> List.head
 
-let evaluate str =
-    parse str
-    |> Result.map evaluateEquation
+let evaluate str = parse str |> Result.map evaluateEquation

@@ -12,6 +12,8 @@ module Text =
 
 
 
+
+
     [<Tests>]
     let tests =
         testList "Convert to WebAssembly text"
@@ -53,6 +55,8 @@ module Binary =
     open Krakow.Core.WebAssembly.Binary
 
     let convertToWebAssemblyBinary equation = convert equation |> Result.map (fun webAssembly -> webAssembly.Binary)
+
+
 
 
 

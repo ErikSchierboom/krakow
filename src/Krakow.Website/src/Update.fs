@@ -12,7 +12,7 @@ open Krakow.Website.Interop
 let private equationEvaluatedSuccessfully model webAssembly =
     let (WebAssemblyText(wat)) = webAssembly.Text
     let (WebAssemblyBinary(wasm)) = webAssembly.Binary
-    
+
     let onSuccess webAssemblyInBrowser =
         EquationEvaluatedSuccessfully
             ({ result = webAssemblyInBrowser.instance.exports?evaluate ()

@@ -4,7 +4,7 @@ type EquationError =
     | Empty
     | Invalid of string
     | Unbalanced
-    
+
 type Operator =
     | Add
     | Sub
@@ -16,7 +16,7 @@ type Operator =
         | Sub -> "-"
         | Mul -> "*"
         | Div -> "/"
-        
+
 type Operand =
     | Operand of int
     override self.ToString() =

@@ -10,7 +10,7 @@ type WebAssemblyBinary = WebAssemblyBinary of int list
 type WebAssembly =
     { Text: WebAssemblyText
       Binary: WebAssemblyBinary }
-    
+
 type WebAssemblyValueType = I32
 
 type WebAssemblyInstruction =
@@ -184,7 +184,7 @@ module Binary =
 
 let private expressionToWebAssemblyInstruction expression =
     match expression with
-    | OperandExpression (Operand i) -> I32Const i
+    | OperandExpression(Operand i) -> I32Const i
     | OperatorExpression Add -> I32Add
     | OperatorExpression Sub -> I32Sub
     | OperatorExpression Mul -> I32Mul
@@ -194,16 +194,14 @@ let private equationToWebAssemblyCode (Equation expressions) = List.map expressi
 
 let private equationToWebAssemblyModule equation =
     { Function =
-        { Result = I32
-          Body = equationToWebAssemblyCode equation
-          Name = "evaluate" } }
-    
+          { Result = I32
+            Body = equationToWebAssemblyCode equation
+            Name = "evaluate" } }
+
 let equationToWebAssembly equation =
     let webAssemblyModule = equationToWebAssemblyModule equation
-    
+
     { Text = Text.outputModule webAssemblyModule
       Binary = Binary.outputModule webAssemblyModule }
-    
-let convert str =
-    parse str
-    |> Result.map equationToWebAssembly
+
+let convert str = parse str |> Result.map equationToWebAssembly

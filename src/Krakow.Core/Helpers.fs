@@ -20,6 +20,4 @@ module Result =
         |> Result.map List.rev
 
 module String =
-    let words (str: string) =
-        str.Trim().Split([| ' ' |], StringSplitOptions.RemoveEmptyEntries)
-        |> List.ofArray
+    let words (str: string) = str.Trim().Split([| ' ' |], StringSplitOptions.RemoveEmptyEntries) |> List.ofArray

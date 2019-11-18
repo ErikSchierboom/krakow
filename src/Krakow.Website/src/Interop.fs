@@ -5,14 +5,14 @@ open Fable.Core.JS
 
 [<AutoOpen>]
 module WebAssembly =
-    type Instance  =
+    type Instance =
         { exports: obj }
 
-    type ResultObject = 
+    type ResultObject =
         { instance: Instance }
 
     [<Emit("WebAssembly.instantiate($0)")>]
-    let instantiate (bufferSource: ArrayBuffer) : JS.Promise<ResultObject> = jsNative
+    let instantiate (bufferSource: ArrayBuffer): JS.Promise<ResultObject> = jsNative
 
 [<AutoOpen>]
 module Uint8Array =
