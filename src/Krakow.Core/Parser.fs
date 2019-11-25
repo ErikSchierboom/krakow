@@ -9,7 +9,7 @@ let private parseExpression word =
     | "-" -> Ok(OperatorExpression Sub)
     | "*" -> Ok(OperatorExpression Mul)
     | "/" -> Ok(OperatorExpression Div)
-    | Int i -> Ok(OperandExpression(Operand i))
+    | Integer i -> Ok(OperandExpression(Operand i))
     | _ -> Error(Invalid word)
 
 let private validate expressions =
