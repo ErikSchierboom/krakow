@@ -43,7 +43,7 @@ let private equationOutputContent resultClass text =
 let private equationOutput evaluation =
     let content =
         match evaluation with
-        | Ok evaluation -> equationOutputContent "tertiary" (string evaluation.result)
+        | Ok evaluation -> equationOutputContent "tertiary" (string evaluation.Result)
         | Error error -> equationOutputContent "secondary" (evaluationErrorText error)
 
     rowWithHeader "Equation output" content
@@ -51,7 +51,7 @@ let private equationOutput evaluation =
 let private webAssemblyText evaluation =
     match evaluation with
     | Ok evaluation ->
-        let content = pre [] [ str evaluation.wat ]
+        let content = pre [] [ str evaluation.Wat ]
 
         rowWithHeader "WebAssembly Text" content
     | _ -> noContent
@@ -60,7 +60,7 @@ let private webAssemblyBinary evaluation =
     match evaluation with
     | Ok evaluation ->
         let bytes =
-            evaluation.wasm
+            evaluation.Wasm
             |> List.map (fun b -> b.ToString("X2"))
             |> String.concat " "
 
@@ -70,12 +70,12 @@ let private webAssemblyBinary evaluation =
     | _ -> noContent
 
 let rows model dispatch =
-    match model.evaluation with
+    match model.Evaluation with
     | Some evaluation ->
-        [ equationInput model.equation dispatch
+        [ equationInput model.Equation dispatch
           equationOutput evaluation
           webAssemblyText evaluation
           webAssemblyBinary evaluation ]
-    | None -> [ equationInput model.equation dispatch ]
+    | None -> [ equationInput model.Equation dispatch ]
 
 let view model dispatch = div [ Class "container" ] (rows model dispatch)

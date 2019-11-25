@@ -1,9 +1,9 @@
 module Krakow.Website.Types
 
 type Evaluation =
-    { result: int
-      wasm: int list
-      wat: string }
+    { Result: int
+      Wasm: int list
+      Wat: string }
 
 type EvaluationError =
     | WebAssemblyException of exn
@@ -12,8 +12,8 @@ type EvaluationError =
     | UnbalancedEquation
 
 type Model =
-    { evaluation: Result<Evaluation, EvaluationError> option
-      equation: string }
+    { Evaluation: Result<Evaluation, EvaluationError> option
+      Equation: string }
 
 type Msg =
     | UpdateEquation of string
