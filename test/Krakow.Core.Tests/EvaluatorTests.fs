@@ -27,7 +27,9 @@ let tests =
 
           testPropertyWithConfig config "Single operand"
           <| fun (number: PositiveInt) ->
-              Expect.equal (evaluate (string number.Get)) (Ok number.Get) "Should evaluate to input operand"
+              Expect.equal (evaluate (string number.Get)) (Ok(EvaluationResult number.Get))
+                  "Should evaluate to input operand"
 
           testCase "All expression types"
-          <| fun () -> Expect.equal (evaluate "1 3 + 36 + 4 / 8 * 5 -") (Ok 75) "Should evaluate successfully" ]
+          <| fun () ->
+              Expect.equal (evaluate "1 3 + 36 + 4 / 8 * 5 -") (Ok(EvaluationResult 75)) "Should evaluate successfully" ]
