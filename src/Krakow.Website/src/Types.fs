@@ -1,7 +1,5 @@
 module Krakow.Website.Types
 
-open Elmish
-
 type Evaluation =
     { result: int
       wasm: int list
