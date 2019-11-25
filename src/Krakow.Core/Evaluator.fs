@@ -3,6 +3,9 @@ module Krakow.Core.Evaluator
 open Krakow.Core.Domain
 open Krakow.Core.Parser
 
+type EvaluationResult =
+    | EvaluationResult of int
+
 let private evaluateExpression stack expression =
     match expression, stack with
     | OperandExpression(Operand operand), _ -> operand :: stack
@@ -16,5 +19,6 @@ let private evaluateEquation (Equation expressions) =
     expressions
     |> List.fold evaluateExpression []
     |> List.head
+    |> EvaluationResult
 
 let evaluate str = parse str |> Result.map evaluateEquation

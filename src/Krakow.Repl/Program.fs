@@ -9,7 +9,7 @@ let private read() = Console.ReadLine()
 
 let private eval input = evaluate input
 
-let private printOutcome outcome = printfn "Outcome: %A" outcome
+let private printOutcome (EvaluationResult outcome) = printfn "Outcome: %A" outcome
 
 let private parserErrorMessage error =
     match error with
