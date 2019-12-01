@@ -8,7 +8,7 @@ type EvaluationResult =
 
 let private evaluateExpression stack expression =
     match expression, stack with
-    | OperandExpression(Operand operand), _ -> operand :: stack
+    | OperandExpression(Integer operand), _ -> operand :: stack
     | OperatorExpression Add, x :: y :: xs -> y + x :: xs
     | OperatorExpression Sub, x :: y :: xs -> y - x :: xs
     | OperatorExpression Mul, x :: y :: xs -> y * x :: xs

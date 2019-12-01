@@ -2,7 +2,7 @@ module Krakow.Core.Helpers
 
 open System
 
-let (|Integer|_|) (str: string) =
+let (|Int32|_|) (str: string) =
     match Int32.TryParse(str) with
     | true, i -> Some i
     | _ -> None

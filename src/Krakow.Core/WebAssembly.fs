@@ -184,7 +184,7 @@ module Binary =
 
 let private expressionToWebAssemblyInstruction expression =
     match expression with
-    | OperandExpression(Operand i) -> I32Const i
+    | OperandExpression(Integer i) -> I32Const i
     | OperatorExpression Add -> I32Add
     | OperatorExpression Sub -> I32Sub
     | OperatorExpression Mul -> I32Mul

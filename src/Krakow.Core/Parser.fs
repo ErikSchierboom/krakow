@@ -9,7 +9,7 @@ let private parseExpression word =
     | "-" -> Ok(OperatorExpression Sub)
     | "*" -> Ok(OperatorExpression Mul)
     | "/" -> Ok(OperatorExpression Div)
-    | Integer i -> Ok(OperandExpression(Operand i))
+    | Int32 i -> Ok(OperandExpression(Integer i))
     | _ -> Error(Invalid word)
 
 let private validate expressions =
@@ -19,7 +19,7 @@ let private validate expressions =
         | [], [ OperandExpression _ ] -> Ok(expressions)
         | OperandExpression i :: xs, _ -> helper xs (OperandExpression i :: stack)
         | OperatorExpression i :: xs, OperandExpression _ :: OperandExpression _ :: ys ->
-            helper xs (OperandExpression(Operand 0) :: ys)
+            helper xs (OperandExpression(Integer 0) :: ys)
         | _ -> Error Unbalanced
 
     helper expressions []

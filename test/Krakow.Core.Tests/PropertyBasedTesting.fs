@@ -57,7 +57,7 @@ let private emptyEquation =
 
 let private operandExpression =
     Arb.Default.PositiveInt()
-    |> Arb.convert (fun positiveInt -> Operand positiveInt.Get) (fun (Operand operand) -> PositiveInt operand)
+    |> Arb.convert (fun positiveInt -> Integer positiveInt.Get) (fun (Integer operand) -> PositiveInt operand)
     |> Arb.toGen
     |> Gen.map OperandExpression
 

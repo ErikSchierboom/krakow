@@ -18,10 +18,10 @@ type Operator =
         | Div -> "/"
 
 type Operand =
-    | Operand of int
+    | Integer of int
     override self.ToString() =
         match self with
-        | Operand operand -> string operand
+        | Integer operand -> string operand
 
 type Expression =
     | OperatorExpression of Operator
