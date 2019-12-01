@@ -70,21 +70,24 @@ module Binary =
 
     type ExportType = FunctionExport
 
-    let private outputUnsignedLEB128 i =
-        let rec helper bytes n =
-            let byte = n &&& 0x7f
-            let nextSevenBits = n >>> 7
+    let outputUnsignedLEB128 i =
+        let rec encodedGroups acc remainder =
+            let bitEightMask = 0b1000_0000
+            let bitsOneToSevenMask = 0b0111_1111
 
-            let correctedByte =
-                if nextSevenBits <> 0 then byte ||| 0x80
-                else byte
+            let group = remainder &&& bitsOneToSevenMask
+            let updatedRemainder = remainder >>> 7
 
-            let bytesWithCorrectedByte = correctedByte :: bytes
+            let correctedGroup =
+                if updatedRemainder = 0 then group
+                else group ||| bitEightMask
 
-            if nextSevenBits = 0 then List.rev bytesWithCorrectedByte
-            else helper bytesWithCorrectedByte nextSevenBits
+            let updatedAcc = correctedGroup :: acc
 
-        helper [] i
+            if updatedRemainder = 0 then updatedAcc
+            else encodedGroups updatedAcc updatedRemainder
+
+        encodedGroups [] i |> List.rev
 
     let private outputInteger i = outputUnsignedLEB128 i
 
