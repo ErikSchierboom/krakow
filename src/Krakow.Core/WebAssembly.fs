@@ -111,12 +111,12 @@ module Binary =
 
     let private outputSectionIndex section =
         match section with
-        | Type -> outputInteger 0x01
-        | Function -> outputInteger 0x03
-        | Export -> outputInteger 0x07
-        | Code -> outputInteger 0x0a
+        | Type -> 0x01
+        | Function -> 0x03
+        | Export -> 0x07
+        | Code -> 0x0a
 
-    let private outputSection section bytes = outputSectionIndex section @ outputVector bytes
+    let private outputSection section bytes = outputSectionIndex section :: outputVector bytes
 
     let outputResult resultType = outputValueType resultType
 
