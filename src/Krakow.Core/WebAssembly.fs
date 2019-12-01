@@ -154,7 +154,7 @@ module Binary =
 
     let private outputInstruction instruction =
         match instruction with
-        | I32Const i -> [ 0x41; i ]
+        | I32Const i -> 0x41 :: outputInteger i
         | I32Add -> [ 0x6a ]
         | I32Sub -> [ 0x6b ]
         | I32Mul -> [ 0x6c ]
