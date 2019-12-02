@@ -6,7 +6,7 @@ open Fable.React.Props
 open Krakow.Website.Types
 open Krakow.Website.Helpers
 
-let private row children = div [ Class "row" ] [ div [ Class "col-sm-offset-3 col-sm-6" ] children ]
+let private row children = div [ Class "row" ] [ div [ Class "col-sm-offset-2 col-sm-8" ] children ]
 
 let private rowWithHeader text content =
     let header = h2 [] [ str text ]
