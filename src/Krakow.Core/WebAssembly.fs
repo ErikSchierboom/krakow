@@ -70,26 +70,49 @@ module Binary =
 
     type ExportType = FunctionExport
 
-    let outputUnsignedLEB128 i =
-        let rec encodedGroups acc remainder =
-            let bitEightMask = 0b1000_0000
-            let bitsOneToSevenMask = 0b0111_1111
+    let private outputUnsignedLEB128 i =
+        let bitEightMask = 0b1000_0000
+        let bitsOneToSevenMask = 0b0111_1111
 
-            let group = remainder &&& bitsOneToSevenMask
-            let updatedRemainder = remainder >>> 7
+        let mutable more = true
+        let mutable value = i
+        let mutable bytes = ResizeArray<int>()
 
-            let correctedGroup =
-                if updatedRemainder = 0 then group
-                else group ||| bitEightMask
+        while more do
+            let mutable byte = value &&& bitsOneToSevenMask
+            value <- value >>> 7
+            more <- value <> 0
 
-            let updatedAcc = correctedGroup :: acc
+            if value <> 0 then byte <- byte ||| bitEightMask
 
-            if updatedRemainder = 0 then updatedAcc
-            else encodedGroups updatedAcc updatedRemainder
+            bytes.Add(byte)
 
-        encodedGroups [] i |> List.rev
+        List.ofSeq bytes
 
-    let private outputInteger i = outputUnsignedLEB128 i
+    let private outputSignedLEB128 i =
+        let bitEightMask = 0b1000_0000
+        let bitSevenMask = 0b0100_0000
+        let bitsOneToSevenMask = 0b0111_1111
+
+        let mutable more = true
+        let mutable value = i
+        let mutable bytes = ResizeArray<int>()
+
+        while more do
+            let mutable byte = value &&& bitsOneToSevenMask
+            value <- value >>> 7
+
+            if value = 0 && (byte &&& bitSevenMask) = 0 then more <- false
+            elif value = -1 && (byte &&& bitSevenMask) > 0 then more <- false
+            else byte <- byte ||| bitEightMask
+
+            bytes.Add(byte)
+
+        List.ofSeq bytes
+
+    let private outputInteger i =
+        if i < 0 then outputSignedLEB128 i
+        else outputUnsignedLEB128 i
 
     let private outputVector bytes =
         let length =
